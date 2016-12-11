@@ -1,34 +1,65 @@
 module Cards exposing (..)
 
 import Html exposing (..)
+import Html.Events exposing (..)
+import WebSocket
 
 
 type alias Model =
-    String
+    { input : String
+    , messages : List String
+    }
 
 
 type Msg
-    = NoOp
+    = NewMessage String
+    | Input String
+    | Send
+
+
+server =
+    "ws://localhost:9160"
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( "Tilman", Cmd.none )
+    ( Model "Tilman" [], Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        NewMessage message ->
+            ( { model | messages = message :: model.messages }, Cmd.none )
+
+        Input string ->
+            ( model, Cmd.none )
+
+        Send ->
+            ( model, connect model )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    WebSocket.listen server NewMessage
 
 
 view : Model -> Html Msg
 view model =
-    div [] [ text ("Hallo " ++ model) ]
+    div []
+        [ div [] (List.map viewMessage model.messages)
+        , input [ onInput Input ] []
+        , button [ onClick Send ] [ text "Send" ]
+        ]
+
+
+viewMessage : String -> Html msg
+viewMessage msg =
+    div [] [ text msg ]
+
+
+connect model =
+    WebSocket.send server ("Hi! I am " ++ model.input)
 
 
 main : Program Never Model Msg
