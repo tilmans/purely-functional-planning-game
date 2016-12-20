@@ -69,17 +69,25 @@ application state pending = do
                     broadcast (fst client `mappend` " joined") s'
                     return s'
                 talk conn state client
-           where
-             prefix     = "Hi! I am "
-             client     = (T.drop (T.length prefix) msg, conn)
-             disconnect = do
-                 -- Remove client and return new state
-                 s <- modifyMVar state $ \s ->
-                     let s' = removeClient client s in return (s', s')
-                 broadcast (fst client `mappend` " disconnected") s
+
+            where
+                prefix     = "Hi! I am "
+                client     = (T.drop (T.length prefix) msg, conn)
+                disconnect = do
+                    -- Remove client and return new state
+                    s <- modifyMVar state $ \s ->
+                        let s' = removeClient client s in return (s', s')
+                    broadcast (fst client `mappend` " disconnected") s
 
 talk :: WS.Connection -> MVar ServerState -> Client -> IO ()
 talk conn state (user, _) = forever $ do
     msg <- WS.receiveData conn
-    readMVar state >>= broadcast
-        (user `mappend` ": " `mappend` msg)
+    case msg of
+        _   | "Vote " `T.isPrefixOf` msg -> do
+                let vote = (T.drop (T.length "vote ") msg)
+                readMVar state >>= broadcast
+                    ("Voted " `mappend` vote)
+
+            | otherwise ->
+                readMVar state >>= broadcast
+                    (user `mappend` ": " `mappend` msg)
