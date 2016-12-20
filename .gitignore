@@ -1,3 +1,4 @@
 .cabal-sandbox
 dist
 elm/elm-stuff
+phoenix/hello/web/elm/elm-stuff
