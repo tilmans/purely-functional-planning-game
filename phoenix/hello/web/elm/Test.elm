@@ -1,16 +1,20 @@
 module Hello exposing (..)
 
 import Html exposing (..)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput)
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
 import Json.Encode as JE
+import Random exposing (..)
 
 
 type alias Model =
     { phxSocket : Phoenix.Socket.Socket Msg
     , message : String
+    , channel : Maybe String
+    , roomID : Maybe String
     }
 
 
@@ -36,6 +40,8 @@ init =
     in
         ( { phxSocket = socket
           , message = ""
+          , channel = Nothing
+          , roomID = Nothing
           }
         , Cmd.none
         )
@@ -48,15 +54,33 @@ type Msg
     | ShowLeaveMessage String
     | ShowJoinMessage String
     | JoinChannel
+    | JoinRoom
+    | CreateRoom
+    | RoomIDChanged String
+    | NewRoom Int
+
+
+startform =
+    [ div []
+        [ input [ type_ "text", onInput RoomIDChanged ] []
+        , button [ onClick JoinRoom ] [ text "Join Game" ]
+        ]
+    , div []
+        [ button [ onClick CreateRoom ] [ text "Start new Game" ] ]
+    ]
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div [] [ text model.message ]
-        , div [ onClick JoinChannel ] [ text "Join me" ]
-        , div [ onClick SendMessage ] [ text "Send Message" ]
-        ]
+    if model.channel == Nothing then
+        div [] startform
+    else
+        (div []
+            [ div [] [ text model.message ]
+            , div [ onClick JoinChannel ] [ text "Join me" ]
+            , div [ onClick SendMessage ] [ text "Send Message" ]
+            ]
+        )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -67,19 +91,27 @@ update msg model =
     in
         case msg of
             JoinChannel ->
-                let
-                    channel =
-                        Phoenix.Channel.init "game:1"
-                            |> Phoenix.Channel.withPayload userParams
-                            |> Phoenix.Channel.onJoin (always (ShowJoinMessage "game:1"))
-                            |> Phoenix.Channel.onClose (always (ShowLeaveMessage "game:1"))
+                case model.roomID of
+                    Nothing ->
+                        ( model, Cmd.none )
 
-                    ( phxSocket, phxCmd ) =
-                        Phoenix.Socket.join channel model.phxSocket
-                in
-                    ( { model | message = "Joining", phxSocket = phxSocket }
-                    , Cmd.map PhoenixMsg phxCmd
-                    )
+                    Just roomID ->
+                        let
+                            channelID =
+                                "game:" ++ roomID
+
+                            channel =
+                                Phoenix.Channel.init (channelID)
+                                    |> Phoenix.Channel.withPayload userParams
+                                    |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
+                                    |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
+
+                            ( phxSocket, phxCmd ) =
+                                Phoenix.Socket.join channel model.phxSocket
+                        in
+                            ( { model | message = "Joining", phxSocket = phxSocket }
+                            , Cmd.map PhoenixMsg phxCmd
+                            )
 
             SendMessage ->
                 let
@@ -104,7 +136,7 @@ update msg model =
                 ( { model | message = "Left Channel" }, Cmd.none )
 
             ShowJoinMessage text ->
-                ( { model | message = "Joined Channel" }, Cmd.none )
+                ( { model | message = "Joined Channel", channel = Just text }, Cmd.none )
 
             PhoenixMsg msg ->
                 let
@@ -117,6 +149,32 @@ update msg model =
                     ( { model | phxSocket = phxSocket }
                     , Cmd.map PhoenixMsg phxCmd
                     )
+
+            JoinRoom ->
+                ( model, Cmd.none )
+
+            CreateRoom ->
+                ( model, Random.generate NewRoom (Random.int 0 99999999) )
+
+            RoomIDChanged newID ->
+                let
+                    roomID =
+                        if newID == "" then
+                            Nothing
+                        else
+                            Just newID
+                in
+                    ( { model | roomID = roomID }, Cmd.none )
+
+            NewRoom roomID ->
+                let
+                    newModel =
+                        { model | roomID = Just (toString roomID) }
+
+                    ( model_, cmd_ ) =
+                        update JoinChannel newModel
+                in
+                    ( model_, cmd_ )
 
 
 subscriptions : Model -> Sub Msg
