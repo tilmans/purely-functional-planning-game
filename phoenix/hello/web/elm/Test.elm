@@ -15,11 +15,16 @@ type alias Model =
     , message : String
     , channel : Maybe String
     , roomID : Maybe String
+    , played : Maybe Int
     }
 
 
 socketServer =
     "ws://localhost:4000/socket/websocket"
+
+
+cards =
+    [ 0, 1, 3, 5, 8, 13 ]
 
 
 userParams : JE.Value
@@ -42,6 +47,7 @@ init =
           , message = ""
           , channel = Nothing
           , roomID = Nothing
+          , played = Nothing
           }
         , Cmd.none
         )
@@ -58,29 +64,35 @@ type Msg
     | CreateRoom
     | RoomIDChanged String
     | NewRoom Int
+    | Play Int
+    | VoteFromServer JE.Value
 
 
 startform =
-    [ div []
-        [ input [ type_ "text", onInput RoomIDChanged ] []
-        , button [ onClick JoinRoom ] [ text "Join Game" ]
+    div []
+        [ div []
+            [ input [ type_ "text", onInput RoomIDChanged ] []
+            , button [ onClick JoinRoom ] [ text "Join Game" ]
+            ]
+        , div []
+            [ button [ onClick CreateRoom ] [ text "Start new Game" ] ]
         ]
-    , div []
-        [ button [ onClick CreateRoom ] [ text "Start new Game" ] ]
-    ]
+
+
+card number =
+    div [ class "card", onClick (Play number) ] [ text (toString number) ]
+
+
+gameform =
+    div [] (List.map card cards)
 
 
 view : Model -> Html Msg
 view model =
     if model.channel == Nothing then
-        div [] startform
+        startform
     else
-        (div []
-            [ div [] [ text model.message ]
-            , div [ onClick JoinChannel ] [ text "Join me" ]
-            , div [ onClick SendMessage ] [ text "Send Message" ]
-            ]
-        )
+        gameform
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -108,8 +120,12 @@ update msg model =
 
                             ( phxSocket, phxCmd ) =
                                 Phoenix.Socket.join channel model.phxSocket
+
+                            phxSocketListen =
+                                phxSocket
+                                    |> Phoenix.Socket.on "play.card" channelID VoteFromServer
                         in
-                            ( { model | message = "Joining", phxSocket = phxSocket }
+                            ( { model | message = "Joining", phxSocket = phxSocketListen }
                             , Cmd.map PhoenixMsg phxCmd
                             )
 
@@ -142,9 +158,6 @@ update msg model =
                 let
                     ( phxSocket, phxCmd ) =
                         Phoenix.Socket.update msg model.phxSocket
-
-                    _ =
-                        Debug.log "Message" msg
                 in
                     ( { model | phxSocket = phxSocket }
                     , Cmd.map PhoenixMsg phxCmd
@@ -175,6 +188,51 @@ update msg model =
                         update JoinChannel newModel
                 in
                     ( model_, cmd_ )
+
+            Play number ->
+                let
+                    newmodel =
+                        { model | played = Just number }
+                in
+                    ( newmodel, play newmodel )
+
+            VoteFromServer vote ->
+                let
+                    _ =
+                        Debug.log "Vote" vote
+                in
+                    model ! []
+
+
+play : Model -> Cmd Msg
+play model =
+    case model.channel of
+        Nothing ->
+            Cmd.none
+
+        Just channel ->
+            case model.played of
+                Nothing ->
+                    Cmd.none
+
+                Just number ->
+                    let
+                        payload =
+                            (JE.object
+                                [ ( "user", JE.string "user" )
+                                , ( "body", JE.string "Hallo" )
+                                , ( "number", JE.int number )
+                                ]
+                            )
+
+                        push =
+                            Phoenix.Push.init "play.card" channel
+                                |> Phoenix.Push.withPayload payload
+
+                        ( phxSocket, phxCmd ) =
+                            Phoenix.Socket.push push model.phxSocket
+                    in
+                        Cmd.map PhoenixMsg phxCmd
 
 
 subscriptions : Model -> Sub Msg

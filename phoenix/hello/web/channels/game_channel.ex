@@ -1,6 +1,8 @@
 defmodule Hello.GameChannel do
     use Hello.Web, :channel
 
+    intercept ["play.card"]
+
     def join("game:1", _params, socket) do
         IO.puts "Join Game Base"
         {:ok, socket}
@@ -22,6 +24,18 @@ defmodule Hello.GameChannel do
     def handle_in("new.msg", _params, socket) do
         IO.puts "Someone said hello"
         {:reply, :ok, socket}
+    end
+
+    def handle_in("play.card", %{"number" => number, "user" => user}, socket) do
+        IO.puts "#{user} played #{number}"
+        broadcast! socket, "play.card", %{number: number, user: user}
+        {:noreply, socket}
+    end
+
+    def handle_out("play.card", payload, socket) do
+        IO.puts "Push card play"
+        push socket, "play.card", payload
+        {:noreply, socket}
     end
 
 end
