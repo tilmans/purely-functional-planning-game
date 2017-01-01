@@ -7,9 +7,11 @@ import Phoenix.Socket exposing (Socket)
 import Phoenix.Channel
 import Phoenix.Push
 import Json.Encode as JE
+import Json.Decode as JD exposing (field)
 import Random exposing (..)
 import Navigation exposing (Location)
 import Task exposing (Task)
+import Dict exposing (Dict)
 
 
 type alias Model =
@@ -19,6 +21,13 @@ type alias Model =
     , roomID : Maybe String
     , played : Maybe Int
     , name : String
+    , votes : Dict String Int
+    }
+
+
+type alias Vote =
+    { user : String
+    , vote : Int
     }
 
 
@@ -33,7 +42,6 @@ cards =
 type Msg
     = PhoenixMsg (Phoenix.Socket.Msg Msg)
     | ReceiveMessage JE.Value
-    | SendMessage
     | ShowLeaveMessage String
     | ShowJoinMessage String
     | JoinChannel
@@ -102,6 +110,7 @@ init location =
           , roomID = Nothing
           , played = Nothing
           , name = "Tilman"
+          , votes = Dict.empty
           }
         , cmd
         )
@@ -126,9 +135,21 @@ card number =
     div [ class "card", onClick (Play number) ] [ text (toString number) ]
 
 
-gameform : Html Msg
-gameform =
-    div [] (List.map card cards)
+gameform : Model -> Html Msg
+gameform model =
+    let
+        gameurl =
+            case model.roomID of
+                Nothing ->
+                    "/hello?"
+
+                Just id ->
+                    "/hello?" ++ id
+    in
+        div []
+            [ a [ href gameurl ] [ text "Link to room" ]
+            , div [] (List.map card cards)
+            ]
 
 
 view : Model -> Html Msg
@@ -136,7 +157,7 @@ view model =
     if model.channel == Nothing then
         startform model
     else
-        gameform
+        gameform model
 
 
 getIdFrom : String -> Maybe String
@@ -173,7 +194,7 @@ update msg model =
             JoinChannel ->
                 case model.roomID of
                     Nothing ->
-                        ( model, Cmd.none )
+                        model ! []
 
                     Just roomID ->
                         let
@@ -183,22 +204,6 @@ update msg model =
                             ( { model | message = "Joining", phxSocket = phxSocket }
                             , phxCmd
                             )
-
-            SendMessage ->
-                let
-                    payload =
-                        (JE.object [ ( "user", JE.string model.name ), ( "body", JE.string "Hallo" ) ])
-
-                    push =
-                        Phoenix.Push.init "new.msg" "game:1"
-                            |> Phoenix.Push.withPayload payload
-
-                    ( phxSocket, phxCmd ) =
-                        Phoenix.Socket.push push model.phxSocket
-                in
-                    ( { model | message = "Sending", phxSocket = phxSocket }
-                    , Cmd.map PhoenixMsg phxCmd
-                    )
 
             ReceiveMessage msg ->
                 ( model, Cmd.none )
@@ -258,8 +263,23 @@ update msg model =
                 let
                     _ =
                         Debug.log "Vote" vote
+
+                    voteDict =
+                        case JD.decodeValue decodeVote vote of
+                            Ok vote ->
+                                Dict.insert vote.user vote.vote model.votes
+
+                            Err error ->
+                                model.votes
                 in
-                    model ! []
+                    { model | votes = voteDict } ! []
+
+
+decodeVote : JD.Decoder Vote
+decodeVote =
+    JD.map2 Vote
+        (field "user" JD.string)
+        (field "number" JD.int)
 
 
 play : Model -> Cmd Msg

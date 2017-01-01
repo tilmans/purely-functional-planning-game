@@ -14672,10 +14672,19 @@ var _user$project$Hello$cards = {
 	}
 };
 var _user$project$Hello$socketServer = 'ws://localhost:4000/socket/websocket';
-var _user$project$Hello$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {phxSocket: a, message: b, channel: c, roomID: d, played: e, name: f};
+var _user$project$Hello$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {phxSocket: a, message: b, channel: c, roomID: d, played: e, name: f, votes: g};
 	});
+var _user$project$Hello$Vote = F2(
+	function (a, b) {
+		return {user: a, vote: b};
+	});
+var _user$project$Hello$decodeVote = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Hello$Vote,
+	A2(_elm_lang$core$Json_Decode$field, 'user', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'number', _elm_lang$core$Json_Decode$int));
 var _user$project$Hello$UrlChange = function (a) {
 	return {ctor: 'UrlChange', _0: a};
 };
@@ -14708,10 +14717,42 @@ var _user$project$Hello$card = function (number) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Hello$gameform = A2(
-	_elm_lang$html$Html$div,
-	{ctor: '[]'},
-	A2(_elm_lang$core$List$map, _user$project$Hello$card, _user$project$Hello$cards));
+var _user$project$Hello$gameform = function (model) {
+	var gameurl = function () {
+		var _p0 = model.roomID;
+		if (_p0.ctor === 'Nothing') {
+			return '/hello?';
+		} else {
+			return A2(_elm_lang$core$Basics_ops['++'], '/hello?', _p0._0);
+		}
+	}();
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href(gameurl),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Link to room'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					A2(_elm_lang$core$List$map, _user$project$Hello$card, _user$project$Hello$cards)),
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _user$project$Hello$NewRoom = function (a) {
 	return {ctor: 'NewRoom', _0: a};
 };
@@ -14812,7 +14853,7 @@ var _user$project$Hello$startform = function (model) {
 		});
 };
 var _user$project$Hello$view = function (model) {
-	return _elm_lang$core$Native_Utils.eq(model.channel, _elm_lang$core$Maybe$Nothing) ? _user$project$Hello$startform(model) : _user$project$Hello$gameform;
+	return _elm_lang$core$Native_Utils.eq(model.channel, _elm_lang$core$Maybe$Nothing) ? _user$project$Hello$startform(model) : _user$project$Hello$gameform(model);
 };
 var _user$project$Hello$JoinChannel = {ctor: 'JoinChannel'};
 var _user$project$Hello$ShowJoinMessage = function (a) {
@@ -14821,7 +14862,6 @@ var _user$project$Hello$ShowJoinMessage = function (a) {
 var _user$project$Hello$ShowLeaveMessage = function (a) {
 	return {ctor: 'ShowLeaveMessage', _0: a};
 };
-var _user$project$Hello$SendMessage = {ctor: 'SendMessage'};
 var _user$project$Hello$ReceiveMessage = function (a) {
 	return {ctor: 'ReceiveMessage', _0: a};
 };
@@ -14843,9 +14883,9 @@ var _user$project$Hello$joinRoom = F2(
 					_fbonetti$elm_phoenix_socket$Phoenix_Channel$withPayload,
 					_user$project$Hello$userParams,
 					_fbonetti$elm_phoenix_socket$Phoenix_Channel$init(channelID))));
-		var _p0 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, socket);
-		var phxSocket = _p0._0;
-		var phxCmd = _p0._1;
+		var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, socket);
+		var phxSocket = _p1._0;
+		var phxCmd = _p1._1;
 		var phxSocketListen = A4(_fbonetti$elm_phoenix_socket$Phoenix_Socket$on, 'play.card', channelID, _user$project$Hello$VoteFromServer, phxSocket);
 		return {
 			ctor: '_Tuple2',
@@ -14862,30 +14902,30 @@ var _user$project$Hello$init = function (location) {
 		_user$project$Hello$ReceiveMessage,
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Hello$socketServer)));
-	var _p1 = function () {
-		var _p2 = id;
-		if (_p2.ctor === 'Nothing') {
+	var _p2 = function () {
+		var _p3 = id;
+		if (_p3.ctor === 'Nothing') {
 			return {ctor: '_Tuple2', _0: socket, _1: _elm_lang$core$Platform_Cmd$none};
 		} else {
-			return A2(_user$project$Hello$joinRoom, _p2._0, socket);
+			return A2(_user$project$Hello$joinRoom, _p3._0, socket);
 		}
 	}();
-	var socketJoined = _p1._0;
-	var cmd = _p1._1;
-	var _p3 = A2(_elm_lang$core$Debug$log, 'Connect', socket);
+	var socketJoined = _p2._0;
+	var cmd = _p2._1;
+	var _p4 = A2(_elm_lang$core$Debug$log, 'Connect', socket);
 	return {
 		ctor: '_Tuple2',
-		_0: {phxSocket: socketJoined, message: '', channel: _elm_lang$core$Maybe$Nothing, roomID: _elm_lang$core$Maybe$Nothing, played: _elm_lang$core$Maybe$Nothing, name: 'Tilman'},
+		_0: {phxSocket: socketJoined, message: '', channel: _elm_lang$core$Maybe$Nothing, roomID: _elm_lang$core$Maybe$Nothing, played: _elm_lang$core$Maybe$Nothing, name: 'Tilman', votes: _elm_lang$core$Dict$empty},
 		_1: cmd
 	};
 };
 var _user$project$Hello$play = function (model) {
-	var _p4 = model.channel;
-	if (_p4.ctor === 'Nothing') {
+	var _p5 = model.channel;
+	if (_p5.ctor === 'Nothing') {
 		return _elm_lang$core$Platform_Cmd$none;
 	} else {
-		var _p5 = model.played;
-		if (_p5.ctor === 'Nothing') {
+		var _p6 = model.played;
+		if (_p6.ctor === 'Nothing') {
 			return _elm_lang$core$Platform_Cmd$none;
 		} else {
 			var payload = _elm_lang$core$Json_Encode$object(
@@ -14901,7 +14941,7 @@ var _user$project$Hello$play = function (model) {
 						_0: {
 							ctor: '_Tuple2',
 							_0: 'number',
-							_1: _elm_lang$core$Json_Encode$int(_p5._0)
+							_1: _elm_lang$core$Json_Encode$int(_p6._0)
 						},
 						_1: {ctor: '[]'}
 					}
@@ -14909,10 +14949,10 @@ var _user$project$Hello$play = function (model) {
 			var push = A2(
 				_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 				payload,
-				A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p4._0));
-			var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
-			var phxSocket = _p6._0;
-			var phxCmd = _p6._1;
+				A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p5._0));
+			var _p7 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
+			var phxSocket = _p7._0;
+			var phxCmd = _p7._1;
 			return A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd);
 		}
 	}
@@ -14921,36 +14961,39 @@ var _user$project$Hello$update = F2(
 	function (msg, model) {
 		update:
 		while (true) {
-			var _p7 = A2(_elm_lang$core$Debug$log, 'Update', msg);
-			var _p8 = msg;
-			switch (_p8.ctor) {
+			var _p8 = A2(_elm_lang$core$Debug$log, 'Update', msg);
+			var _p9 = msg;
+			switch (_p9.ctor) {
 				case 'UrlChange':
-					var gameid = _user$project$Hello$getIdFrom(_p8._0.search);
-					var _p9 = gameid;
-					if (_p9.ctor === 'Nothing') {
+					var gameid = _user$project$Hello$getIdFrom(_p9._0.search);
+					var _p10 = gameid;
+					if (_p10.ctor === 'Nothing') {
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							model,
 							{ctor: '[]'});
 					} else {
-						var _v5 = _user$project$Hello$JoinChannel,
-							_v6 = _elm_lang$core$Native_Utils.update(
+						var _v6 = _user$project$Hello$JoinChannel,
+							_v7 = _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								roomID: _elm_lang$core$Maybe$Just(_p9._0)
+								roomID: _elm_lang$core$Maybe$Just(_p10._0)
 							});
-						msg = _v5;
-						model = _v6;
+						msg = _v6;
+						model = _v7;
 						continue update;
 					}
 				case 'JoinChannel':
-					var _p10 = model.roomID;
-					if (_p10.ctor === 'Nothing') {
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					var _p11 = model.roomID;
+					if (_p11.ctor === 'Nothing') {
+						return A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							model,
+							{ctor: '[]'});
 					} else {
-						var _p11 = A2(_user$project$Hello$joinRoom, _p10._0, model.phxSocket);
-						var phxSocket = _p11._0;
-						var phxCmd = _p11._1;
+						var _p12 = A2(_user$project$Hello$joinRoom, _p11._0, model.phxSocket);
+						var phxSocket = _p12._0;
+						var phxCmd = _p12._1;
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
@@ -14959,39 +15002,6 @@ var _user$project$Hello$update = F2(
 							_1: phxCmd
 						};
 					}
-				case 'SendMessage':
-					var payload = _elm_lang$core$Json_Encode$object(
-						{
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'user',
-								_1: _elm_lang$core$Json_Encode$string(model.name)
-							},
-							_1: {
-								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'body',
-									_1: _elm_lang$core$Json_Encode$string('Hallo')
-								},
-								_1: {ctor: '[]'}
-							}
-						});
-					var push = A2(
-						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-						payload,
-						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'new.msg', 'game:1'));
-					var _p12 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
-					var phxSocket = _p12._0;
-					var phxCmd = _p12._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{message: 'Sending', phxSocket: phxSocket}),
-						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd)
-					};
 				case 'ReceiveMessage':
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				case 'ShowLeaveMessage':
@@ -15009,12 +15019,12 @@ var _user$project$Hello$update = F2(
 							model,
 							{
 								message: 'Joined Channel',
-								channel: _elm_lang$core$Maybe$Just(_p8._0)
+								channel: _elm_lang$core$Maybe$Just(_p9._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				case 'PhoenixMsg':
-					var _p13 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p8._0, model.phxSocket);
+					var _p13 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p9._0, model.phxSocket);
 					var phxSocket = _p13._0;
 					var phxCmd = _p13._1;
 					return {
@@ -15036,7 +15046,7 @@ var _user$project$Hello$update = F2(
 							A2(_elm_lang$core$Random$int, 0, 99999999))
 					};
 				case 'RoomIDChanged':
-					var _p14 = _p8._0;
+					var _p14 = _p9._0;
 					var roomID = _elm_lang$core$Native_Utils.eq(_p14, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p14);
 					return {
 						ctor: '_Tuple2',
@@ -15055,7 +15065,7 @@ var _user$project$Hello$update = F2(
 						model,
 						{
 							roomID: _elm_lang$core$Maybe$Just(
-								_elm_lang$core$Basics$toString(_p8._0))
+								_elm_lang$core$Basics$toString(_p9._0))
 						});
 					var _p15 = A2(_user$project$Hello$update, _user$project$Hello$JoinChannel, newModel);
 					var model_ = _p15._0;
@@ -15065,7 +15075,7 @@ var _user$project$Hello$update = F2(
 					var newmodel = _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							played: _elm_lang$core$Maybe$Just(_p8._0)
+							played: _elm_lang$core$Maybe$Just(_p9._0)
 						});
 					return {
 						ctor: '_Tuple2',
@@ -15073,10 +15083,22 @@ var _user$project$Hello$update = F2(
 						_1: _user$project$Hello$play(newmodel)
 					};
 				default:
-					var _p16 = A2(_elm_lang$core$Debug$log, 'Vote', _p8._0);
+					var _p19 = _p9._0;
+					var voteDict = function () {
+						var _p16 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p19);
+						if (_p16.ctor === 'Ok') {
+							var _p17 = _p16._0;
+							return A3(_elm_lang$core$Dict$insert, _p17.user, _p17.vote, model.votes);
+						} else {
+							return model.votes;
+						}
+					}();
+					var _p18 = A2(_elm_lang$core$Debug$log, 'Vote', _p19);
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{votes: voteDict}),
 						{ctor: '[]'});
 			}
 		}
@@ -15092,7 +15114,7 @@ var _user$project$Hello$main = A2(
 var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};
 if (typeof _user$project$Hello$main !== 'undefined') {
-    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"SendMessage":[],"JoinRoom":[],"ReceiveMessage":["Json.Encode.Value"],"ShowLeaveMessage":["String"],"JoinChannel":[],"NameChange":["String"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"RoomIDChanged":["String"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"JoinRoom":[],"ReceiveMessage":["Json.Encode.Value"],"ShowLeaveMessage":["String"],"JoinChannel":[],"NameChange":["String"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"RoomIDChanged":["String"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
