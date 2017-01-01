@@ -13,6 +13,7 @@ import Navigation exposing (Location)
 import Task exposing (Task)
 import Dict exposing (Dict)
 import Maybe exposing (withDefault)
+import NameInput
 
 
 type alias Model =
@@ -21,8 +22,9 @@ type alias Model =
     , channel : Maybe String
     , roomID : Maybe String
     , played : Maybe Int
-    , name : Maybe String
+    , name : NameInput.Model
     , votes : Dict String Int
+    , state : ViewState
     }
 
 
@@ -52,35 +54,19 @@ type Msg
     | NewRoom Int
     | Play Int
     | VoteFromServer JE.Value
-    | NameChange String
     | UrlChange Location
+    | NameInputMsg NameInput.Msg
+
+
+type ViewState
+    = NameInput
+    | RoomInput
+    | Game
 
 
 userParams : JE.Value
 userParams =
     JE.object [ ( "user_id", JE.string "123" ) ]
-
-
-joinRoom : String -> Socket Msg -> ( Socket Msg, Cmd Msg )
-joinRoom roomID socket =
-    let
-        channelID =
-            "game:" ++ roomID
-
-        channel =
-            Phoenix.Channel.init (channelID)
-                |> Phoenix.Channel.withPayload userParams
-                |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
-                |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
-
-        ( phxSocket, phxCmd ) =
-            Phoenix.Socket.join channel socket
-
-        phxSocketListen =
-            phxSocket
-                |> Phoenix.Socket.on "play.card" channelID VoteFromServer
-    in
-        ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
 
 
 init : Location -> ( Model, Cmd Msg )
@@ -110,8 +96,9 @@ init location =
           , channel = Nothing
           , roomID = Nothing
           , played = Nothing
-          , name = Nothing
+          , name = NameInput.initialModel
           , votes = Dict.empty
+          , state = NameInput
           }
         , cmd
         )
@@ -159,19 +146,17 @@ gameform model =
             ]
 
 
-nameform : Model -> Html Msg
-nameform model =
-    input [ type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
-
-
 view : Model -> Html Msg
 view model =
-    if model.name == Nothing then
-        nameform model
-    else if model.channel == Nothing then
-        startform model
-    else
-        gameform model
+    case model.state of
+        NameInput ->
+            Html.map NameInputMsg (NameInput.view model.name)
+
+        RoomInput ->
+            startform model
+
+        Game ->
+            gameform model
 
 
 getIdFrom : String -> Maybe String
@@ -253,9 +238,6 @@ update msg model =
                 in
                     ( { model | roomID = roomID }, Cmd.none )
 
-            NameChange newName ->
-                { model | name = Just newName } ! []
-
             NewRoom roomID ->
                 let
                     newModel =
@@ -286,7 +268,20 @@ update msg model =
                             Err error ->
                                 model.votes
                 in
-                    { model | votes = voteDict } ! []
+                    ( { model | votes = voteDict }, Cmd.none )
+
+            NameInputMsg msg ->
+                let
+                    ( updatedNameModel, nameCmd ) =
+                        NameInput.update msg model.name
+
+                    nextState =
+                        if updatedNameModel.set then
+                            RoomInput
+                        else
+                            NameInput
+                in
+                    ( { model | name = updatedNameModel, state = nextState }, Cmd.map NameInputMsg nameCmd )
 
 
 decodeVote : JD.Decoder Vote
@@ -298,35 +293,32 @@ decodeVote =
 
 play : Model -> Cmd Msg
 play model =
-    if model.name == Nothing then
-        Cmd.none
-    else
-        case model.channel of
-            Nothing ->
-                Cmd.none
+    case model.channel of
+        Nothing ->
+            Cmd.none
 
-            Just channel ->
-                case model.played of
-                    Nothing ->
-                        Cmd.none
+        Just channel ->
+            case model.played of
+                Nothing ->
+                    Cmd.none
 
-                    Just number ->
-                        let
-                            payload =
-                                (JE.object
-                                    [ ( "user", JE.string (withDefault "no name" model.name) )
-                                    , ( "number", JE.int number )
-                                    ]
-                                )
+                Just number ->
+                    let
+                        payload =
+                            (JE.object
+                                [ ( "user", JE.string model.name.name )
+                                , ( "number", JE.int number )
+                                ]
+                            )
 
-                            push =
-                                Phoenix.Push.init "play.card" channel
-                                    |> Phoenix.Push.withPayload payload
+                        push =
+                            Phoenix.Push.init "play.card" channel
+                                |> Phoenix.Push.withPayload payload
 
-                            ( phxSocket, phxCmd ) =
-                                Phoenix.Socket.push push model.phxSocket
-                        in
-                            Cmd.map PhoenixMsg phxCmd
+                        ( phxSocket, phxCmd ) =
+                            Phoenix.Socket.push push model.phxSocket
+                    in
+                        Cmd.map PhoenixMsg phxCmd
 
 
 subscriptions : Model -> Sub Msg
@@ -342,3 +334,25 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
+
+
+joinRoom : String -> Socket Msg -> ( Socket Msg, Cmd Msg )
+joinRoom roomID socket =
+    let
+        channelID =
+            "game:" ++ roomID
+
+        channel =
+            Phoenix.Channel.init (channelID)
+                |> Phoenix.Channel.withPayload userParams
+                |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
+                |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
+
+        ( phxSocket, phxCmd ) =
+            Phoenix.Socket.join channel socket
+
+        phxSocketListen =
+            phxSocket
+                |> Phoenix.Socket.on "play.card" channelID VoteFromServer
+    in
+        ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
