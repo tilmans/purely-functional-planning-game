@@ -12,6 +12,7 @@ import Random exposing (..)
 import Navigation exposing (Location)
 import Task exposing (Task)
 import Dict exposing (Dict)
+import Maybe exposing (withDefault)
 
 
 type alias Model =
@@ -20,7 +21,7 @@ type alias Model =
     , channel : Maybe String
     , roomID : Maybe String
     , played : Maybe Int
-    , name : String
+    , name : Maybe String
     , votes : Dict String Int
     }
 
@@ -109,7 +110,7 @@ init location =
           , channel = Nothing
           , roomID = Nothing
           , played = Nothing
-          , name = "Tilman"
+          , name = Nothing
           , votes = Dict.empty
           }
         , cmd
@@ -120,8 +121,6 @@ startform : Model -> Html Msg
 startform model =
     div []
         [ div []
-            [ input [ type_ "text", onInput NameChange, value model.name ] [] ]
-        , div []
             [ input [ type_ "text", onInput RoomIDChanged ] []
             , button [ onClick JoinRoom ] [ text "Join Game" ]
             ]
@@ -160,9 +159,16 @@ gameform model =
             ]
 
 
+nameform : Model -> Html Msg
+nameform model =
+    input [ type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
+
+
 view : Model -> Html Msg
 view model =
-    if model.channel == Nothing then
+    if model.name == Nothing then
+        nameform model
+    else if model.channel == Nothing then
         startform model
     else
         gameform model
@@ -248,7 +254,7 @@ update msg model =
                     ( { model | roomID = roomID }, Cmd.none )
 
             NameChange newName ->
-                model ! []
+                { model | name = Just newName } ! []
 
             NewRoom roomID ->
                 let
@@ -292,32 +298,35 @@ decodeVote =
 
 play : Model -> Cmd Msg
 play model =
-    case model.channel of
-        Nothing ->
-            Cmd.none
+    if model.name == Nothing then
+        Cmd.none
+    else
+        case model.channel of
+            Nothing ->
+                Cmd.none
 
-        Just channel ->
-            case model.played of
-                Nothing ->
-                    Cmd.none
+            Just channel ->
+                case model.played of
+                    Nothing ->
+                        Cmd.none
 
-                Just number ->
-                    let
-                        payload =
-                            (JE.object
-                                [ ( "user", JE.string model.name )
-                                , ( "number", JE.int number )
-                                ]
-                            )
+                    Just number ->
+                        let
+                            payload =
+                                (JE.object
+                                    [ ( "user", JE.string (withDefault "no name" model.name) )
+                                    , ( "number", JE.int number )
+                                    ]
+                                )
 
-                        push =
-                            Phoenix.Push.init "play.card" channel
-                                |> Phoenix.Push.withPayload payload
+                            push =
+                                Phoenix.Push.init "play.card" channel
+                                    |> Phoenix.Push.withPayload payload
 
-                        ( phxSocket, phxCmd ) =
-                            Phoenix.Socket.push push model.phxSocket
-                    in
-                        Cmd.map PhoenixMsg phxCmd
+                            ( phxSocket, phxCmd ) =
+                                Phoenix.Socket.push push model.phxSocket
+                        in
+                            Cmd.map PhoenixMsg phxCmd
 
 
 subscriptions : Model -> Sub Msg
