@@ -3,11 +3,6 @@ defmodule Hello.GameChannel do
 
     intercept ["play.card"]
 
-    def join("game:1", _params, socket) do
-        IO.puts "Join Game Base"
-        {:ok, socket}
-    end
-
     def join("game:" <> game_id, _params, socket) do
         IO.puts "Join Game " <> game_id
         {:ok, assign(socket, :game_id, String.to_integer(game_id))}
