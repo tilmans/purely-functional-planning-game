@@ -3,7 +3,7 @@ module Hello exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Phoenix.Socket
+import Phoenix.Socket exposing (Socket)
 import Phoenix.Channel
 import Phoenix.Push
 import Json.Encode as JE
@@ -30,11 +30,29 @@ cards =
     [ 0, 1, 3, 5, 8, 13 ]
 
 
+type Msg
+    = PhoenixMsg (Phoenix.Socket.Msg Msg)
+    | ReceiveMessage JE.Value
+    | SendMessage
+    | ShowLeaveMessage String
+    | ShowJoinMessage String
+    | JoinChannel
+    | JoinRoom
+    | CreateRoom
+    | RoomIDChanged String
+    | NewRoom Int
+    | Play Int
+    | VoteFromServer JE.Value
+    | NameChange String
+    | UrlChange Location
+
+
 userParams : JE.Value
 userParams =
     JE.object [ ( "user_id", JE.string "123" ) ]
 
 
+joinRoom : String -> Socket Msg -> ( Socket Msg, Cmd Msg )
 joinRoom roomID socket =
     let
         channelID =
@@ -53,7 +71,7 @@ joinRoom roomID socket =
             phxSocket
                 |> Phoenix.Socket.on "play.card" channelID VoteFromServer
     in
-        (phxSocketListen, Cmd.map PhoenixMsg phxCmd)
+        ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
 
 
 init : Location -> ( Model, Cmd Msg )
@@ -65,12 +83,12 @@ init location =
                 |> Phoenix.Socket.on "new:msg" "game:*" ReceiveMessage
 
         id =
-            getIdFrom location
+            getIdFrom location.search
 
-        (socketJoined, cmd) =
+        ( socketJoined, cmd ) =
             case id of
                 Nothing ->
-                    (socket, Cmd.none)
+                    ( socket, Cmd.none )
 
                 Just roomID ->
                     joinRoom roomID socket
@@ -89,23 +107,7 @@ init location =
         )
 
 
-type Msg
-    = PhoenixMsg (Phoenix.Socket.Msg Msg)
-    | ReceiveMessage JE.Value
-    | SendMessage
-    | ShowLeaveMessage String
-    | ShowJoinMessage String
-    | JoinChannel
-    | JoinRoom
-    | CreateRoom
-    | RoomIDChanged String
-    | NewRoom Int
-    | Play Int
-    | VoteFromServer JE.Value
-    | NameChange String
-    | UrlChange Location
-
-
+startform : Model -> Html Msg
 startform model =
     div []
         [ div []
@@ -119,10 +121,12 @@ startform model =
         ]
 
 
+card : Int -> Html Msg
 card number =
     div [ class "card", onClick (Play number) ] [ text (toString number) ]
 
 
+gameform : Html Msg
 gameform =
     div [] (List.map card cards)
 
@@ -135,10 +139,11 @@ view model =
         gameform
 
 
+getIdFrom : String -> Maybe String
 getIdFrom location =
     let
         idString =
-            String.dropLeft 1 location.search
+            String.dropLeft 1 location
     in
         if idString == "" then
             Nothing
@@ -156,7 +161,7 @@ update msg model =
             UrlChange location ->
                 let
                     gameid =
-                        getIdFrom location
+                        getIdFrom location.search
                 in
                     case gameid of
                         Nothing ->
@@ -172,7 +177,8 @@ update msg model =
 
                     Just roomID ->
                         let
-                            (phxSocket, phxCmd) = joinRoom roomID model.phxSocket
+                            ( phxSocket, phxCmd ) =
+                                joinRoom roomID model.phxSocket
                         in
                             ( { model | message = "Joining", phxSocket = phxSocket }
                             , phxCmd
