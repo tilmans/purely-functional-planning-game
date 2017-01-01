@@ -8,6 +8,8 @@ import Phoenix.Channel
 import Phoenix.Push
 import Json.Encode as JE
 import Random exposing (..)
+import Navigation exposing (Location)
+import Task exposing (Task)
 
 
 type alias Model =
@@ -16,6 +18,7 @@ type alias Model =
     , channel : Maybe String
     , roomID : Maybe String
     , played : Maybe Int
+    , name : String
     }
 
 
@@ -32,24 +35,57 @@ userParams =
     JE.object [ ( "user_id", JE.string "123" ) ]
 
 
-init : ( Model, Cmd Msg )
-init =
+joinRoom roomID socket =
+    let
+        channelID =
+            "game:" ++ roomID
+
+        channel =
+            Phoenix.Channel.init (channelID)
+                |> Phoenix.Channel.withPayload userParams
+                |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
+                |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
+
+        ( phxSocket, phxCmd ) =
+            Phoenix.Socket.join channel socket
+
+        phxSocketListen =
+            phxSocket
+                |> Phoenix.Socket.on "play.card" channelID VoteFromServer
+    in
+        (phxSocketListen, Cmd.map PhoenixMsg phxCmd)
+
+
+init : Location -> ( Model, Cmd Msg )
+init location =
     let
         socket =
             Phoenix.Socket.init socketServer
                 |> Phoenix.Socket.withDebug
                 |> Phoenix.Socket.on "new:msg" "game:*" ReceiveMessage
 
+        id =
+            getIdFrom location
+
+        (socketJoined, cmd) =
+            case id of
+                Nothing ->
+                    (socket, Cmd.none)
+
+                Just roomID ->
+                    joinRoom roomID socket
+
         _ =
             Debug.log "Connect" socket
     in
-        ( { phxSocket = socket
+        ( { phxSocket = socketJoined
           , message = ""
           , channel = Nothing
           , roomID = Nothing
           , played = Nothing
+          , name = "Tilman"
           }
-        , Cmd.none
+        , cmd
         )
 
 
@@ -66,11 +102,15 @@ type Msg
     | NewRoom Int
     | Play Int
     | VoteFromServer JE.Value
+    | NameChange String
+    | UrlChange Location
 
 
-startform =
+startform model =
     div []
         [ div []
+            [ input [ type_ "text", onInput NameChange, value model.name ] [] ]
+        , div []
             [ input [ type_ "text", onInput RoomIDChanged ] []
             , button [ onClick JoinRoom ] [ text "Join Game" ]
             ]
@@ -90,9 +130,20 @@ gameform =
 view : Model -> Html Msg
 view model =
     if model.channel == Nothing then
-        startform
+        startform model
     else
         gameform
+
+
+getIdFrom location =
+    let
+        idString =
+            String.dropLeft 1 location.search
+    in
+        if idString == "" then
+            Nothing
+        else
+            Just idString
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -102,6 +153,18 @@ update msg model =
             Debug.log "Update" msg
     in
         case msg of
+            UrlChange location ->
+                let
+                    gameid =
+                        getIdFrom location
+                in
+                    case gameid of
+                        Nothing ->
+                            model ! []
+
+                        Just idvalue ->
+                            update JoinChannel { model | roomID = Just idvalue }
+
             JoinChannel ->
                 case model.roomID of
                     Nothing ->
@@ -109,30 +172,16 @@ update msg model =
 
                     Just roomID ->
                         let
-                            channelID =
-                                "game:" ++ roomID
-
-                            channel =
-                                Phoenix.Channel.init (channelID)
-                                    |> Phoenix.Channel.withPayload userParams
-                                    |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
-                                    |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
-
-                            ( phxSocket, phxCmd ) =
-                                Phoenix.Socket.join channel model.phxSocket
-
-                            phxSocketListen =
-                                phxSocket
-                                    |> Phoenix.Socket.on "play.card" channelID VoteFromServer
+                            (phxSocket, phxCmd) = joinRoom roomID model.phxSocket
                         in
-                            ( { model | message = "Joining", phxSocket = phxSocketListen }
-                            , Cmd.map PhoenixMsg phxCmd
+                            ( { model | message = "Joining", phxSocket = phxSocket }
+                            , phxCmd
                             )
 
             SendMessage ->
                 let
                     payload =
-                        (JE.object [ ( "user", JE.string "user" ), ( "body", JE.string "Hallo" ) ])
+                        (JE.object [ ( "user", JE.string model.name ), ( "body", JE.string "Hallo" ) ])
 
                     push =
                         Phoenix.Push.init "new.msg" "game:1"
@@ -179,6 +228,9 @@ update msg model =
                 in
                     ( { model | roomID = roomID }, Cmd.none )
 
+            NameChange newName ->
+                model ! []
+
             NewRoom roomID ->
                 let
                     newModel =
@@ -219,8 +271,7 @@ play model =
                     let
                         payload =
                             (JE.object
-                                [ ( "user", JE.string "user" )
-                                , ( "body", JE.string "Hallo" )
+                                [ ( "user", JE.string model.name )
                                 , ( "number", JE.int number )
                                 ]
                             )
@@ -242,7 +293,7 @@ subscriptions model =
 
 main : Program Never Model Msg
 main =
-    program
+    Navigation.program UrlChange
         { init = init
         , view = view
         , update = update
