@@ -135,6 +135,13 @@ card number =
     div [ class "card", onClick (Play number) ] [ text (toString number) ]
 
 
+vote : ( String, Int ) -> Html Msg
+vote ( user, number ) =
+    div []
+        [ text (user ++ ": " ++ toString (number))
+        ]
+
+
 gameform : Model -> Html Msg
 gameform model =
     let
@@ -148,6 +155,7 @@ gameform model =
     in
         div []
             [ a [ href gameurl ] [ text "Link to room" ]
+            , div [] [ text "Played", div [] (List.map vote (Dict.toList model.votes)) ]
             , div [] (List.map card cards)
             ]
 
