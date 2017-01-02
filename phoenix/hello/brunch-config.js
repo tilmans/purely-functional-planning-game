@@ -43,7 +43,7 @@ exports.config = {
     watched: [
       "web/static",
       "test/static",
-      "web/elm"
+      "web/elm/Test.elm"
     ],
 
     // Where to compile files to
