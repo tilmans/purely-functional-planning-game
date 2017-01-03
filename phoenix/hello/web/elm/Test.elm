@@ -40,15 +40,16 @@ type Msg
     = PhoenixMsg (Phoenix.Socket.Msg Msg)
     | ShowLeaveMessage String
     | ShowJoinMessage String
+    | VoteFromServer JE.Value
     | JoinRoom
     | CreateRoom
     | RoomIDChanged String
     | NewRoom Int
     | Play Int
-    | VoteFromServer JE.Value
     | NameChange String
     | UrlChange Location
     | SetName
+    | ListUpdate JE.Value
 
 
 type State
@@ -72,23 +73,30 @@ type alias Model =
 init : Location -> ( Model, Cmd Msg )
 init location =
     let
-        id =
+        ( name, id ) =
             getIdFrom location.search
 
-        socket =
+        initsocket =
             Phoenix.Socket.init socketServer
                 |> Phoenix.Socket.withDebug
+                |> Phoenix.Socket.on "list" "game:*" ListUpdate
+
+        model =
+            { phxSocket = initsocket
+            , message = ""
+            , channel = Nothing
+            , roomID = id
+            , played = Nothing
+            , name = name
+            , votes = []
+            , state = NameInput
+            }
+
+        ( nextState, socket, cmd ) =
+            progressState model
     in
-        ( { phxSocket = socket
-          , message = ""
-          , channel = Nothing
-          , roomID = Nothing
-          , played = Nothing
-          , name = Nothing
-          , votes = []
-          , state = NameInput
-          }
-        , Cmd.none
+        ( { model | state = nextState, phxSocket = socket }
+        , cmd
         )
 
 
@@ -180,6 +188,13 @@ update msg model =
                 in
                     { model | state = nextState, phxSocket = socket } ! [ cmd ]
 
+            ListUpdate msg ->
+                let
+                    _ =
+                        Debug.log "List" "Update"
+                in
+                    model ! []
+
 
 progressState : Model -> ( State, Phoenix.Socket.Socket Msg, Cmd Msg )
 progressState model =
@@ -264,7 +279,7 @@ gameform model =
         div []
             [ a [ href gameurl ] [ text "Link to room" ]
             , div [] [ text "Played", div [] (List.map vote model.votes) ]
-            , div [] (List.map card cards)
+            , div [ class "available-cards" ] (List.map card cards)
             ]
 
 
@@ -345,16 +360,22 @@ userParams =
     JE.object [ ( "user_id", JE.string "123" ) ]
 
 
-getIdFrom : String -> Maybe String
+getIdFrom : String -> ( Maybe String, Maybe String )
 getIdFrom location =
     let
-        idString =
+        string =
             String.dropLeft 1 location
+
+        subs =
+            String.split "&" string
+
+        name =
+            List.foldr (extract "name") Nothing subs
+
+        id =
+            List.foldr (extract "room") Nothing subs
     in
-        if idString == "" then
-            Nothing
-        else
-            Just idString
+        ( name, id )
 
 
 connectSocket : Model -> ( Phoenix.Socket.Socket Msg, Cmd Msg )
@@ -382,3 +403,18 @@ connectSocket model =
 notUser : String -> Vote -> Bool
 notUser user vote =
     vote.user /= user
+
+
+extract : String -> String -> Maybe String -> Maybe String
+extract lookFor values accum =
+    let
+        subs =
+            String.split "=" values
+
+        key =
+            withDefault "" (List.head subs)
+    in
+        if key == lookFor then
+            List.head (withDefault [] (List.tail subs))
+        else
+            accum
