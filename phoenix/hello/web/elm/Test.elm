@@ -2,7 +2,7 @@ module Hello exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Phoenix.Socket exposing (Socket)
 import Phoenix.Channel
 import Phoenix.Push
@@ -13,19 +13,13 @@ import Navigation exposing (Location)
 import Task exposing (Task)
 import Dict exposing (Dict)
 import Maybe exposing (withDefault)
-import GameUtil
 
 
-type alias Model =
-    { phxSocket : Phoenix.Socket.Socket Msg
-    , message : String
-    , channel : Maybe String
-    , roomID : Maybe String
-    , played : Maybe Int
-    , name : Maybe String
-    , votes : Dict String Int
-    , state : State
-    }
+{--TODO
+* Check that the room is an Int
+* Resend votes from server on connect
+* Make sure the game link works
+--}
 
 
 type alias Vote =
@@ -64,11 +58,23 @@ type State
     | Playing
 
 
+type alias Model =
+    { phxSocket : Phoenix.Socket.Socket Msg
+    , message : String
+    , channel : Maybe String
+    , roomID : Maybe String
+    , played : Maybe Int
+    , name : Maybe String
+    , votes : List Vote
+    , state : State
+    }
+
+
 init : Location -> ( Model, Cmd Msg )
 init location =
     let
         id =
-            GameUtil.getIdFrom location.search
+            getIdFrom location.search
 
         socket =
             Phoenix.Socket.init socketServer
@@ -80,129 +86,11 @@ init location =
           , roomID = Nothing
           , played = Nothing
           , name = Nothing
-          , votes = Dict.empty
+          , votes = []
           , state = NameInput
           }
         , Cmd.none
         )
-
-
-startform : Model -> Html Msg
-startform model =
-    div []
-        [ div []
-            [ input [ type_ "text", onInput RoomIDChanged ] []
-            , button [ onClick JoinRoom ] [ text "Join Game" ]
-            ]
-        , div []
-            [ button [ onClick CreateRoom ] [ text "Start new Game" ] ]
-        ]
-
-
-card : Int -> Html Msg
-card number =
-    div [ class "card", onClick (Play number) ] [ text (toString number) ]
-
-
-vote : ( String, Int ) -> Html Msg
-vote ( user, number ) =
-    div []
-        [ text (user ++ ": " ++ toString (number))
-        ]
-
-
-gameform : Model -> Html Msg
-gameform model =
-    let
-        gameurl =
-            case model.roomID of
-                Nothing ->
-                    "/hello?"
-
-                Just id ->
-                    "/hello?" ++ id
-    in
-        div []
-            [ a [ href gameurl ] [ text "Link to room" ]
-            , div [] [ text "Played", div [] (List.map vote (Dict.toList model.votes)) ]
-            , div [] (List.map card cards)
-            ]
-
-
-nameform : Model -> Html Msg
-nameform model =
-    div []
-        [ input [ type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
-        , button [ onClick SetName ] [ text "Join Game" ]
-        ]
-
-
-view : Model -> Html Msg
-view model =
-    case model.state of
-        NameInput ->
-            nameform model
-
-        RoomInput ->
-            startform model
-
-        Playing ->
-            gameform model
-
-
-progressState : Model -> ( State, Phoenix.Socket.Socket Msg, Cmd Msg )
-progressState model =
-    case model.state of
-        NameInput ->
-            if model.name == Nothing then
-                ( NameInput, model.phxSocket, Cmd.none )
-            else if model.roomID == Nothing then
-                ( RoomInput, model.phxSocket, Cmd.none )
-            else
-                let
-                    ( socket, cmd ) =
-                        connectSocket model
-                in
-                    ( Playing, socket, cmd )
-
-        RoomInput ->
-            if model.roomID == Nothing then
-                ( RoomInput, model.phxSocket, Cmd.none )
-            else
-                let
-                    ( socket, cmd ) =
-                        connectSocket model
-                in
-                    ( Playing, socket, cmd )
-
-        Playing ->
-            let
-                ( socket, cmd ) =
-                    connectSocket model
-            in
-                ( Playing, socket, cmd )
-
-
-connectSocket : Model -> ( Phoenix.Socket.Socket Msg, Cmd Msg )
-connectSocket model =
-    let
-        channelID =
-            "game:" ++ (withDefault "" model.roomID)
-
-        channel =
-            Phoenix.Channel.init (channelID)
-                |> Phoenix.Channel.withPayload GameUtil.userParams
-                |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
-                |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
-
-        ( phxSocket, phxCmd ) =
-            Phoenix.Socket.join channel model.phxSocket
-
-        phxSocketListen =
-            phxSocket
-                |> Phoenix.Socket.on "play.card" channelID VoteFromServer
-    in
-        ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -275,15 +163,15 @@ update msg model =
                     _ =
                         Debug.log "Vote" vote
 
-                    voteDict =
+                    votes =
                         case JD.decodeValue decodeVote vote of
                             Ok vote ->
-                                Dict.insert vote.user vote.vote model.votes
+                                vote :: model.votes
 
                             Err error ->
                                 model.votes
                 in
-                    { model | votes = voteDict } ! []
+                    { model | votes = votes } ! []
 
             SetName ->
                 let
@@ -291,6 +179,39 @@ update msg model =
                         progressState model
                 in
                     { model | state = nextState, phxSocket = socket } ! [ cmd ]
+
+
+progressState : Model -> ( State, Phoenix.Socket.Socket Msg, Cmd Msg )
+progressState model =
+    case model.state of
+        NameInput ->
+            if model.name == Nothing then
+                ( NameInput, model.phxSocket, Cmd.none )
+            else if model.roomID == Nothing then
+                ( RoomInput, model.phxSocket, Cmd.none )
+            else
+                let
+                    ( socket, cmd ) =
+                        connectSocket model
+                in
+                    ( Playing, socket, cmd )
+
+        RoomInput ->
+            if model.roomID == Nothing then
+                ( RoomInput, model.phxSocket, Cmd.none )
+            else
+                let
+                    ( socket, cmd ) =
+                        connectSocket model
+                in
+                    ( Playing, socket, cmd )
+
+        Playing ->
+            let
+                ( socket, cmd ) =
+                    connectSocket model
+            in
+                ( Playing, socket, cmd )
 
 
 subscriptions : Model -> Sub Msg
@@ -306,6 +227,77 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
+
+
+
+{--User Interface --}
+
+
+startform : Model -> Html Msg
+startform model =
+    div []
+        [ div []
+            [ input [ type_ "text", onInput RoomIDChanged ] []
+            , button [ onClick JoinRoom ] [ text "Join Game" ]
+            ]
+        , div []
+            [ button [ onClick CreateRoom ] [ text "Start new Game" ] ]
+        ]
+
+
+card : Int -> Html Msg
+card number =
+    div [ class "card", onClick (Play number) ] [ text (toString number) ]
+
+
+gameform : Model -> Html Msg
+gameform model =
+    let
+        gameurl =
+            case model.roomID of
+                Nothing ->
+                    "/hello?"
+
+                Just id ->
+                    "/hello?" ++ id
+    in
+        div []
+            [ a [ href gameurl ] [ text "Link to room" ]
+            , div [] [ text "Played", div [] (List.map vote model.votes) ]
+            , div [] (List.map card cards)
+            ]
+
+
+vote : Vote -> Html Msg
+vote vote =
+    div []
+        [ text (vote.user ++ ": " ++ toString (vote.vote))
+        ]
+
+
+nameform : Model -> Html Msg
+nameform model =
+    Html.form [ onSubmit SetName ]
+        [ input [ type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
+        , button [ onClick SetName ] [ text "Join Game" ]
+        ]
+
+
+view : Model -> Html Msg
+view model =
+    case model.state of
+        NameInput ->
+            nameform model
+
+        RoomInput ->
+            startform model
+
+        Playing ->
+            gameform model
+
+
+
+{--Utilities --}
 
 
 decodeVote : JD.Decoder Vote
@@ -346,3 +338,42 @@ play model =
                                 Phoenix.Socket.push push model.phxSocket
                         in
                             Cmd.map PhoenixMsg phxCmd
+
+
+userParams : JE.Value
+userParams =
+    JE.object [ ( "user_id", JE.string "123" ) ]
+
+
+getIdFrom : String -> Maybe String
+getIdFrom location =
+    let
+        idString =
+            String.dropLeft 1 location
+    in
+        if idString == "" then
+            Nothing
+        else
+            Just idString
+
+
+connectSocket : Model -> ( Phoenix.Socket.Socket Msg, Cmd Msg )
+connectSocket model =
+    let
+        channelID =
+            "game:" ++ (withDefault "" model.roomID)
+
+        channel =
+            Phoenix.Channel.init (channelID)
+                |> Phoenix.Channel.withPayload userParams
+                |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
+                |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
+
+        ( phxSocket, phxCmd ) =
+            Phoenix.Socket.join channel model.phxSocket
+
+        phxSocketListen =
+            phxSocket
+                |> Phoenix.Socket.on "play.card" channelID VoteFromServer
+    in
+        ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
