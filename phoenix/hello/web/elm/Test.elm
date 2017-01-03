@@ -6,13 +6,14 @@ import Html.Events exposing (onClick, onInput)
 import Phoenix.Socket exposing (Socket)
 import Phoenix.Channel
 import Phoenix.Push
-import Json.Encode as JE
 import Json.Decode as JD exposing (field)
+import Json.Encode as JE
 import Random exposing (..)
 import Navigation exposing (Location)
 import Task exposing (Task)
 import Dict exposing (Dict)
 import Maybe exposing (withDefault)
+import GameUtil
 
 
 type alias Model =
@@ -23,6 +24,7 @@ type alias Model =
     , played : Maybe Int
     , name : Maybe String
     , votes : Dict String Int
+    , state : State
     }
 
 
@@ -45,7 +47,6 @@ type Msg
     | ReceiveMessage JE.Value
     | ShowLeaveMessage String
     | ShowJoinMessage String
-    | JoinChannel
     | JoinRoom
     | CreateRoom
     | RoomIDChanged String
@@ -54,66 +55,35 @@ type Msg
     | VoteFromServer JE.Value
     | NameChange String
     | UrlChange Location
+    | SetName
 
 
-userParams : JE.Value
-userParams =
-    JE.object [ ( "user_id", JE.string "123" ) ]
-
-
-joinRoom : String -> Socket Msg -> ( Socket Msg, Cmd Msg )
-joinRoom roomID socket =
-    let
-        channelID =
-            "game:" ++ roomID
-
-        channel =
-            Phoenix.Channel.init (channelID)
-                |> Phoenix.Channel.withPayload userParams
-                |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
-                |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
-
-        ( phxSocket, phxCmd ) =
-            Phoenix.Socket.join channel socket
-
-        phxSocketListen =
-            phxSocket
-                |> Phoenix.Socket.on "play.card" channelID VoteFromServer
-    in
-        ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
+type State
+    = NameInput
+    | RoomInput
+    | Playing
 
 
 init : Location -> ( Model, Cmd Msg )
 init location =
     let
+        id =
+            GameUtil.getIdFrom location.search
+
         socket =
             Phoenix.Socket.init socketServer
                 |> Phoenix.Socket.withDebug
-                |> Phoenix.Socket.on "new:msg" "game:*" ReceiveMessage
-
-        id =
-            getIdFrom location.search
-
-        ( socketJoined, cmd ) =
-            case id of
-                Nothing ->
-                    ( socket, Cmd.none )
-
-                Just roomID ->
-                    joinRoom roomID socket
-
-        _ =
-            Debug.log "Connect" socket
     in
-        ( { phxSocket = socketJoined
+        ( { phxSocket = socket
           , message = ""
           , channel = Nothing
           , roomID = Nothing
           , played = Nothing
           , name = Nothing
           , votes = Dict.empty
+          , state = NameInput
           }
-        , cmd
+        , Cmd.none
         )
 
 
@@ -161,29 +131,78 @@ gameform model =
 
 nameform : Model -> Html Msg
 nameform model =
-    input [ type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
+    div []
+        [ input [ type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
+        , button [ onClick SetName ] [ text "Join Game" ]
+        ]
 
 
 view : Model -> Html Msg
 view model =
-    if model.name == Nothing then
-        nameform model
-    else if model.channel == Nothing then
-        startform model
-    else
-        gameform model
+    case model.state of
+        NameInput ->
+            nameform model
+
+        RoomInput ->
+            startform model
+
+        Playing ->
+            gameform model
 
 
-getIdFrom : String -> Maybe String
-getIdFrom location =
+progressState : Model -> ( State, Phoenix.Socket.Socket Msg, Cmd Msg )
+progressState model =
+    case model.state of
+        NameInput ->
+            if model.name == Nothing then
+                ( NameInput, model.phxSocket, Cmd.none )
+            else if model.roomID == Nothing then
+                ( RoomInput, model.phxSocket, Cmd.none )
+            else
+                let
+                    ( socket, cmd ) =
+                        connectSocket model
+                in
+                    ( Playing, socket, cmd )
+
+        RoomInput ->
+            if model.roomID == Nothing then
+                ( RoomInput, model.phxSocket, Cmd.none )
+            else
+                let
+                    ( socket, cmd ) =
+                        connectSocket model
+                in
+                    ( Playing, socket, cmd )
+
+        Playing ->
+            let
+                ( socket, cmd ) =
+                    connectSocket model
+            in
+                ( Playing, socket, cmd )
+
+
+connectSocket : Model -> ( Phoenix.Socket.Socket Msg, Cmd Msg )
+connectSocket model =
     let
-        idString =
-            String.dropLeft 1 location
+        channelID =
+            "game:" ++ (withDefault "" model.roomID)
+
+        channel =
+            Phoenix.Channel.init (channelID)
+                |> Phoenix.Channel.withPayload GameUtil.userParams
+                |> Phoenix.Channel.onJoin (always (ShowJoinMessage channelID))
+                |> Phoenix.Channel.onClose (always (ShowLeaveMessage channelID))
+
+        ( phxSocket, phxCmd ) =
+            Phoenix.Socket.join channel model.phxSocket
+
+        phxSocketListen =
+            phxSocket
+                |> Phoenix.Socket.on "play.card" channelID VoteFromServer
     in
-        if idString == "" then
-            Nothing
-        else
-            Just idString
+        ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -194,30 +213,7 @@ update msg model =
     in
         case msg of
             UrlChange location ->
-                let
-                    gameid =
-                        getIdFrom location.search
-                in
-                    case gameid of
-                        Nothing ->
-                            model ! []
-
-                        Just idvalue ->
-                            update JoinChannel { model | roomID = Just idvalue }
-
-            JoinChannel ->
-                case model.roomID of
-                    Nothing ->
-                        model ! []
-
-                    Just roomID ->
-                        let
-                            ( phxSocket, phxCmd ) =
-                                joinRoom roomID model.phxSocket
-                        in
-                            ( { model | message = "Joining", phxSocket = phxSocket }
-                            , phxCmd
-                            )
+                model ! []
 
             ReceiveMessage msg ->
                 ( model, Cmd.none )
@@ -238,7 +234,11 @@ update msg model =
                     )
 
             JoinRoom ->
-                ( model, Cmd.none )
+                let
+                    ( nextState, socket, cmd ) =
+                        progressState model
+                in
+                    { model | phxSocket = socket, state = nextState } ! [ cmd ]
 
             CreateRoom ->
                 ( model, Random.generate NewRoom (Random.int 0 99999999) )
@@ -260,11 +260,8 @@ update msg model =
                 let
                     newModel =
                         { model | roomID = Just (toString roomID) }
-
-                    ( model_, cmd_ ) =
-                        update JoinChannel newModel
                 in
-                    ( model_, cmd_ )
+                    newModel ! []
 
             Play number ->
                 let
@@ -287,6 +284,28 @@ update msg model =
                                 model.votes
                 in
                     { model | votes = voteDict } ! []
+
+            SetName ->
+                let
+                    ( nextState, socket, cmd ) =
+                        progressState model
+                in
+                    { model | state = nextState, phxSocket = socket } ! [ cmd ]
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Phoenix.Socket.listen model.phxSocket PhoenixMsg
+
+
+main : Program Never Model Msg
+main =
+    Navigation.program UrlChange
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
 
 decodeVote : JD.Decoder Vote
@@ -327,18 +346,3 @@ play model =
                                 Phoenix.Socket.push push model.phxSocket
                         in
                             Cmd.map PhoenixMsg phxCmd
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Phoenix.Socket.listen model.phxSocket PhoenixMsg
-
-
-main : Program Never Model Msg
-main =
-    Navigation.program UrlChange
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
