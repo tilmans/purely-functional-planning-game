@@ -278,14 +278,14 @@ gameform model =
     in
         div []
             [ a [ href gameurl ] [ text "Link to room" ]
-            , div [] [ text "Played", div [] (List.map vote model.votes) ]
+            , div [ class "played-cards" ] (List.map vote model.votes)
             , div [ class "available-cards" ] (List.map card cards)
             ]
 
 
 vote : Vote -> Html Msg
 vote vote =
-    div []
+    div [ class "card" ]
         [ text (vote.user ++ ": " ++ toString (vote.vote))
         ]
 

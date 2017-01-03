@@ -14677,7 +14677,11 @@ var _user$project$Hello$userParams = _elm_lang$core$Json_Encode$object(
 var _user$project$Hello$vote = function (vote) {
 	return A2(
 		_elm_lang$html$Html$div,
-		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('card'),
+			_1: {ctor: '[]'}
+		},
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html$text(
@@ -14838,19 +14842,12 @@ var _user$project$Hello$gameform = function (model) {
 				ctor: '::',
 				_0: A2(
 					_elm_lang$html$Html$div,
-					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Played'),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								A2(_elm_lang$core$List$map, _user$project$Hello$vote, model.votes)),
-							_1: {ctor: '[]'}
-						}
-					}),
+						_0: _elm_lang$html$Html_Attributes$class('played-cards'),
+						_1: {ctor: '[]'}
+					},
+					A2(_elm_lang$core$List$map, _user$project$Hello$vote, model.votes)),
 				_1: {
 					ctor: '::',
 					_0: A2(
