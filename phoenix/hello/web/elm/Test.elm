@@ -38,7 +38,6 @@ cards =
 
 type Msg
     = PhoenixMsg (Phoenix.Socket.Msg Msg)
-    | ReceiveMessage JE.Value
     | ShowLeaveMessage String
     | ShowJoinMessage String
     | JoinRoom
@@ -101,10 +100,8 @@ update msg model =
     in
         case msg of
             UrlChange location ->
+                {--TODO: Change the room? --}
                 model ! []
-
-            ReceiveMessage msg ->
-                ( model, Cmd.none )
 
             ShowLeaveMessage text ->
                 ( { model | message = "Left Channel" }, Cmd.none )
@@ -131,6 +128,16 @@ update msg model =
             CreateRoom ->
                 ( model, Random.generate NewRoom (Random.int 0 99999999) )
 
+            NewRoom roomID ->
+                let
+                    newModel =
+                        { model | roomID = Just (toString roomID) }
+
+                    ( joinedModel, cmd ) =
+                        update JoinRoom newModel
+                in
+                    joinedModel ! [ cmd ]
+
             RoomIDChanged newID ->
                 let
                     roomID =
@@ -143,13 +150,6 @@ update msg model =
 
             NameChange newName ->
                 { model | name = Just newName } ! []
-
-            NewRoom roomID ->
-                let
-                    newModel =
-                        { model | roomID = Just (toString roomID) }
-                in
-                    newModel ! []
 
             Play number ->
                 let
@@ -166,7 +166,7 @@ update msg model =
                     votes =
                         case JD.decodeValue decodeVote vote of
                             Ok vote ->
-                                vote :: model.votes
+                                vote :: List.filter (notUser vote.user) model.votes
 
                             Err error ->
                                 model.votes
@@ -377,3 +377,8 @@ connectSocket model =
                 |> Phoenix.Socket.on "play.card" channelID VoteFromServer
     in
         ( phxSocketListen, Cmd.map PhoenixMsg phxCmd )
+
+
+notUser : String -> Vote -> Bool
+notUser user vote =
+    vote.user /= user

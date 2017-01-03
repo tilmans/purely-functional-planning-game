@@ -14632,6 +14632,10 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 			});
 	});
 
+var _user$project$Hello$notUser = F2(
+	function (user, vote) {
+		return !_elm_lang$core$Native_Utils.eq(vote.user, user);
+	});
 var _user$project$Hello$getIdFrom = function (location) {
 	var idString = A2(_elm_lang$core$String$dropLeft, 1, location);
 	return _elm_lang$core$Native_Utils.eq(idString, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(idString);
@@ -14924,9 +14928,6 @@ var _user$project$Hello$ShowJoinMessage = function (a) {
 var _user$project$Hello$ShowLeaveMessage = function (a) {
 	return {ctor: 'ShowLeaveMessage', _0: a};
 };
-var _user$project$Hello$ReceiveMessage = function (a) {
-	return {ctor: 'ReceiveMessage', _0: a};
-};
 var _user$project$Hello$PhoenixMsg = function (a) {
 	return {ctor: 'PhoenixMsg', _0: a};
 };
@@ -15067,8 +15068,6 @@ var _user$project$Hello$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					{ctor: '[]'});
-			case 'ReceiveMessage':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'ShowLeaveMessage':
 				return {
 					ctor: '_Tuple2',
@@ -15123,9 +15122,27 @@ var _user$project$Hello$update = F2(
 						_user$project$Hello$NewRoom,
 						A2(_elm_lang$core$Random$int, 0, 99999999))
 				};
+			case 'NewRoom':
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						roomID: _elm_lang$core$Maybe$Just(
+							_elm_lang$core$Basics$toString(_p11._0))
+					});
+				var _p14 = A2(_user$project$Hello$update, _user$project$Hello$JoinRoom, newModel);
+				var joinedModel = _p14._0;
+				var cmd = _p14._1;
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					joinedModel,
+					{
+						ctor: '::',
+						_0: cmd,
+						_1: {ctor: '[]'}
+					});
 			case 'RoomIDChanged':
-				var _p14 = _p11._0;
-				var roomID = _elm_lang$core$Native_Utils.eq(_p14, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p14);
+				var _p15 = _p11._0;
+				var roomID = _elm_lang$core$Native_Utils.eq(_p15, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p15);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -15142,17 +15159,6 @@ var _user$project$Hello$update = F2(
 							name: _elm_lang$core$Maybe$Just(_p11._0)
 						}),
 					{ctor: '[]'});
-			case 'NewRoom':
-				var newModel = _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						roomID: _elm_lang$core$Maybe$Just(
-							_elm_lang$core$Basics$toString(_p11._0))
-					});
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					newModel,
-					{ctor: '[]'});
 			case 'Play':
 				var newmodel = _elm_lang$core$Native_Utils.update(
 					model,
@@ -15165,16 +15171,24 @@ var _user$project$Hello$update = F2(
 					_1: _user$project$Hello$play(newmodel)
 				};
 			case 'VoteFromServer':
-				var _p17 = _p11._0;
+				var _p19 = _p11._0;
 				var votes = function () {
-					var _p15 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p17);
-					if (_p15.ctor === 'Ok') {
-						return {ctor: '::', _0: _p15._0, _1: model.votes};
+					var _p16 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p19);
+					if (_p16.ctor === 'Ok') {
+						var _p17 = _p16._0;
+						return {
+							ctor: '::',
+							_0: _p17,
+							_1: A2(
+								_elm_lang$core$List$filter,
+								_user$project$Hello$notUser(_p17.user),
+								model.votes)
+						};
 					} else {
 						return model.votes;
 					}
 				}();
-				var _p16 = A2(_elm_lang$core$Debug$log, 'Vote', _p17);
+				var _p18 = A2(_elm_lang$core$Debug$log, 'Vote', _p19);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -15182,10 +15196,10 @@ var _user$project$Hello$update = F2(
 						{votes: votes}),
 					{ctor: '[]'});
 			default:
-				var _p18 = _user$project$Hello$progressState(model);
-				var nextState = _p18._0;
-				var socket = _p18._1;
-				var cmd = _p18._2;
+				var _p20 = _user$project$Hello$progressState(model);
+				var nextState = _p20._0;
+				var socket = _p20._1;
+				var cmd = _p20._2;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -15206,7 +15220,7 @@ var _user$project$Hello$main = A2(
 var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};
 if (typeof _user$project$Hello$main !== 'undefined') {
-    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"JoinRoom":[],"ReceiveMessage":["Json.Encode.Value"],"ShowLeaveMessage":["String"],"NameChange":["String"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"SetName":[],"RoomIDChanged":["String"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"JoinRoom":[],"ShowLeaveMessage":["String"],"NameChange":["String"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"SetName":[],"RoomIDChanged":["String"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
