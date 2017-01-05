@@ -14724,7 +14724,7 @@ var _user$project$Hello$socketServer = function (location) {
 	var server = location.hostname;
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		'ws://',
+		'wss://',
 		A2(_elm_lang$core$Basics_ops['++'], server, ':4000/socket/websocket'));
 };
 var _user$project$Hello$Vote = F2(
