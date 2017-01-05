@@ -28,8 +28,13 @@ type alias Vote =
     }
 
 
-socketServer =
-    "ws://localhost:4000/socket/websocket"
+socketServer : Location -> String
+socketServer location =
+    let
+        server =
+            location.host
+    in
+        "ws://" ++ server ++ ":4000/socket/websocket"
 
 
 cards =
@@ -77,7 +82,7 @@ init location =
             getIdFrom location.search
 
         initsocket =
-            Phoenix.Socket.init socketServer
+            Phoenix.Socket.init (socketServer location)
                 |> Phoenix.Socket.withDebug
                 |> Phoenix.Socket.on "list" "game:*" ListUpdate
 
