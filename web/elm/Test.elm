@@ -31,10 +31,19 @@ type alias Vote =
 socketServer : Location -> String
 socketServer location =
     let
+        _ =
+            Debug.log "Location" location
+
         server =
             location.hostname
+
+        protocol =
+            if location.protocol == "http:" then
+                "ws"
+            else
+                "wss"
     in
-        "wss://" ++ server ++ "/socket/websocket"
+        protocol ++ "://" ++ server ++ ":" ++ location.port_ ++ "/socket/websocket"
 
 
 cards =
