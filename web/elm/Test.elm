@@ -31,9 +31,6 @@ type alias Vote =
 socketServer : Location -> String
 socketServer location =
     let
-        _ =
-            Debug.log "Location" location
-
         server =
             location.hostname
 
@@ -292,9 +289,22 @@ gameform model =
     in
         div []
             [ a [ href gameurl ] [ text "Link to room" ]
-            , div [ class "played-cards" ] (List.map vote model.votes)
+            , div []
+                [ div [] [ text "Played Cards" ]
+                , playedCards model
+                ]
             , div [ class "available-cards" ] (List.map card cards)
             ]
+
+
+playedCards : Model -> Html Msg
+playedCards model =
+    case model.votes of
+        [] ->
+            div [ class "played-cards-placeholder" ] [ text "No Votes yet" ]
+
+        _ ->
+            div [ class "played-cards" ] (List.map vote model.votes)
 
 
 vote : Vote -> Html Msg

@@ -96,4 +96,19 @@ form.link, form.button {
     display: flex;
 }
 
+.played-cards {
+    display: flex;
+}
+
+.played-cards-placeholder {
+    height: 100px;
+    border-radius: 2px;
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+    vertical-align: middle;
+    margin: 10px;
+    padding: 10px;
+}
+
 /*# sourceMappingURL=app.css.map*/

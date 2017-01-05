@@ -14695,6 +14695,32 @@ var _user$project$Hello$vote = function (vote) {
 			_1: {ctor: '[]'}
 		});
 };
+var _user$project$Hello$playedCards = function (model) {
+	var _p0 = model.votes;
+	if (_p0.ctor === '[]') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('played-cards-placeholder'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('No Votes yet'),
+				_1: {ctor: '[]'}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('played-cards'),
+				_1: {ctor: '[]'}
+			},
+			A2(_elm_lang$core$List$map, _user$project$Hello$vote, model.votes));
+	}
+};
 var _user$project$Hello$cards = {
 	ctor: '::',
 	_0: 0,
@@ -14723,7 +14749,6 @@ var _user$project$Hello$cards = {
 var _user$project$Hello$socketServer = function (location) {
 	var protocol = _elm_lang$core$Native_Utils.eq(location.protocol, 'http:') ? 'ws' : 'wss';
 	var server = location.hostname;
-	var _p0 = A2(_elm_lang$core$Debug$log, 'Location', location);
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		protocol,
@@ -14859,12 +14884,23 @@ var _user$project$Hello$gameform = function (model) {
 				ctor: '::',
 				_0: A2(
 					_elm_lang$html$Html$div,
+					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('played-cards'),
-						_1: {ctor: '[]'}
-					},
-					A2(_elm_lang$core$List$map, _user$project$Hello$vote, model.votes)),
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Played Cards'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _user$project$Hello$playedCards(model),
+							_1: {ctor: '[]'}
+						}
+					}),
 				_1: {
 					ctor: '::',
 					_0: A2(
