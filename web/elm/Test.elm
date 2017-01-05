@@ -32,7 +32,7 @@ socketServer : Location -> String
 socketServer location =
     let
         server =
-            location.host
+            location.hostname
     in
         "ws://" ++ server ++ ":4000/socket/websocket"
 

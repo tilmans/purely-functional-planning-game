@@ -16292,7 +16292,13 @@ var _user$project$Hello$cards = {
 		}
 	}
 };
-var _user$project$Hello$socketServer = 'ws://localhost:4000/socket/websocket';
+var _user$project$Hello$socketServer = function (location) {
+	var server = location.hostname;
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'ws://',
+		A2(_elm_lang$core$Basics_ops['++'], server, ':4000/socket/websocket'));
+};
 var _user$project$Hello$Vote = F2(
 	function (a, b) {
 		return {user: a, vote: b};
@@ -16646,7 +16652,8 @@ var _user$project$Hello$init = function (location) {
 		'game:*',
 		_user$project$Hello$ListUpdate,
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
-			_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Hello$socketServer)));
+			_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(
+				_user$project$Hello$socketServer(location))));
 	var _p10 = _user$project$Hello$getIdFrom(location.search);
 	var name = _p10._0;
 	var id = _p10._1;

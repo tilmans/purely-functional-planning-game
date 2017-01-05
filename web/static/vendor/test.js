@@ -14721,7 +14721,7 @@ var _user$project$Hello$cards = {
 	}
 };
 var _user$project$Hello$socketServer = function (location) {
-	var server = location.host;
+	var server = location.hostname;
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		'ws://',
