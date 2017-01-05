@@ -1,5 +1,10 @@
 /* This file is for your main application css. */
 
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .card {
     width: 70px;
     height: 100px;

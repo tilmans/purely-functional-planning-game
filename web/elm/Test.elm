@@ -13,6 +13,9 @@ import Navigation exposing (Location)
 import Task exposing (Task)
 import Dict exposing (Dict)
 import Maybe exposing (withDefault)
+import WebGL exposing (toHtml)
+import Quad exposing (..)
+import Window
 
 
 {--TODO
@@ -61,6 +64,7 @@ type Msg
     | UrlChange Location
     | SetName
     | ListUpdate JE.Value
+    | WindowSize Window.Size
 
 
 type State
@@ -78,6 +82,7 @@ type alias Model =
     , name : Maybe String
     , votes : List Vote
     , state : State
+    , size : Window.Size
     }
 
 
@@ -101,13 +106,17 @@ init location =
             , name = name
             , votes = []
             , state = NameInput
+            , size = Window.Size 400 400
             }
 
         ( nextState, socket, cmd ) =
             progressState model
+
+        _ =
+            Debug.log "Init Command" cmd
     in
         ( { model | state = nextState, phxSocket = socket }
-        , cmd
+        , Cmd.batch [ cmd, Task.perform (\x -> WindowSize x) Window.size ]
         )
 
 
@@ -206,6 +215,9 @@ update msg model =
                 in
                     model ! []
 
+            WindowSize size ->
+                { model | size = size } ! []
+
 
 progressState : Model -> ( State, Phoenix.Socket.Socket Msg, Cmd Msg )
 progressState model =
@@ -271,16 +283,17 @@ startform model =
         ]
 
 
+
+{--
 card : Int -> Html Msg
 card number =
     div [ class "card", onClick (Play number) ] [ text (toString number) ]
-
-
-availableCards : Html Msg
+--}
+{--availableCards : Html Msg
 availableCards =
     div [ class "available-cards" ] (List.map card cards)
-
-
+--}
+{--
 gameform : Model -> Html Msg
 gameform model =
     let
@@ -303,6 +316,7 @@ gameform model =
                 , availableCards
                 ]
             ]
+--}
 
 
 playedCards : Model -> Html Msg
@@ -340,7 +354,11 @@ view model =
             startform model
 
         Playing ->
-            gameform model
+            WebGL.toHtml [ width model.size.width, height model.size.height ]
+                ((quad 3 blue)
+                    ++ (card ( 0.1, -0.6 ))
+                    ++ (card ( -0.8, 0.1 ))
+                )
 
 
 
