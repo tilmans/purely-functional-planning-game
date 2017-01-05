@@ -16297,7 +16297,7 @@ var _user$project$Hello$socketServer = function (location) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		'wss://',
-		A2(_elm_lang$core$Basics_ops['++'], server, ':4000/socket/websocket'));
+		A2(_elm_lang$core$Basics_ops['++'], server, '/socket/websocket'));
 };
 var _user$project$Hello$Vote = F2(
 	function (a, b) {

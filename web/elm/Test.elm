@@ -34,7 +34,7 @@ socketServer location =
         server =
             location.hostname
     in
-        "wss://" ++ server ++ ":4000/socket/websocket"
+        "wss://" ++ server ++ "/socket/websocket"
 
 
 cards =
