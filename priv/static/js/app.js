@@ -16426,6 +16426,14 @@ var _user$project$Hello$card = function (number) {
 			_1: {ctor: '[]'}
 		});
 };
+var _user$project$Hello$availableCards = A2(
+	_elm_lang$html$Html$div,
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$class('available-cards'),
+		_1: {ctor: '[]'}
+	},
+	A2(_elm_lang$core$List$map, _user$project$Hello$card, _user$project$Hello$cards));
 var _user$project$Hello$gameform = function (model) {
 	var gameurl = function () {
 		var _p1 = model.roomID;
@@ -16460,7 +16468,7 @@ var _user$project$Hello$gameform = function (model) {
 					{
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$div,
+							_elm_lang$html$Html$h2,
 							{ctor: '[]'},
 							{
 								ctor: '::',
@@ -16477,12 +16485,23 @@ var _user$project$Hello$gameform = function (model) {
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$div,
+						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('available-cards'),
-							_1: {ctor: '[]'}
-						},
-						A2(_elm_lang$core$List$map, _user$project$Hello$card, _user$project$Hello$cards)),
+							_0: A2(
+								_elm_lang$html$Html$h2,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Cards'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _user$project$Hello$availableCards,
+								_1: {ctor: '[]'}
+							}
+						}),
 					_1: {ctor: '[]'}
 				}
 			}

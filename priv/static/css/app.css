@@ -83,13 +83,14 @@ form.link, form.button {
 /* This file is for your main application css. */
 
 .card {
-    width: 50px;
+    width: 70px;
     height: 100px;
     border-radius: 2px;
     border-color: black;
     border-width: 2px;
     border-style: solid;
     margin: 10px;
+    padding: 5px;
 }
 
 .available-cards {
@@ -109,6 +110,10 @@ form.link, form.button {
     vertical-align: middle;
     margin: 10px;
     padding: 10px;
+}
+
+h2 {
+    margin: 10px;
 }
 
 /*# sourceMappingURL=app.css.map*/

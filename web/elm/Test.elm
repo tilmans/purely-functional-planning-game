@@ -276,6 +276,11 @@ card number =
     div [ class "card", onClick (Play number) ] [ text (toString number) ]
 
 
+availableCards : Html Msg
+availableCards =
+    div [ class "available-cards" ] (List.map card cards)
+
+
 gameform : Model -> Html Msg
 gameform model =
     let
@@ -290,10 +295,13 @@ gameform model =
         div []
             [ a [ href gameurl ] [ text "Link to room" ]
             , div []
-                [ div [] [ text "Played Cards" ]
+                [ h2 [] [ text "Played Cards" ]
                 , playedCards model
                 ]
-            , div [ class "available-cards" ] (List.map card cards)
+            , div []
+                [ h2 [] [ text "Cards" ]
+                , availableCards
+                ]
             ]
 
 
