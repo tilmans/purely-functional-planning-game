@@ -116,4 +116,11 @@ h2 {
     margin: 10px;
 }
 
+.aframe-container {
+    display: block;
+    width: 500px;
+    height: 500px;
+    background-color: red;
+}
+
 /*# sourceMappingURL=app.css.map*/

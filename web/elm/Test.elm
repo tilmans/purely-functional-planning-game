@@ -13,6 +13,10 @@ import Navigation exposing (Location)
 import Task exposing (Task)
 import Dict exposing (Dict)
 import Maybe exposing (withDefault)
+import Color exposing (rgb)
+import AFrame exposing (scene, entity)
+import AFrame.Primitives exposing (sphere, box, cylinder, plane, sky)
+import AFrame.Primitives.Attributes exposing (position, radius, color)
 
 
 {--TODO
@@ -340,10 +344,21 @@ view model =
             startform model
 
         Playing ->
-            gameform model
+            div [ class "aframe-container" ]
+                [ scene
+                    []
+                    [ sphere
+                        [ position 0 1.25 -1
+                        , radius 1.25
+                        , color (rgb 0 1 0)
+                        ]
+                        []
+                    ]
+                ]
 
 
 
+{--gameform model--}
 {--Utilities --}
 
 
