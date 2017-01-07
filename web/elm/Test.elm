@@ -14,7 +14,9 @@ import Task exposing (Task)
 import Dict exposing (Dict)
 import Maybe exposing (withDefault)
 import WebGL exposing (toHtml)
+import WebGL.Texture as Texture exposing (Error, Texture)
 import Quad exposing (..)
+import Math.Vector2 exposing (..)
 import Window
 
 
@@ -65,6 +67,7 @@ type Msg
     | SetName
     | ListUpdate JE.Value
     | WindowSize Window.Size
+    | TextureLoaded (Result Error Texture)
 
 
 type State
@@ -82,7 +85,9 @@ type alias Model =
     , name : Maybe String
     , votes : List Vote
     , state : State
-    , size : Window.Size
+    , size :
+        Window.Size
+    , texture : Maybe Texture
     }
 
 
@@ -107,6 +112,7 @@ init location =
             , votes = []
             , state = NameInput
             , size = Window.Size 400 400
+            , texture = Nothing
             }
 
         ( nextState, socket, cmd ) =
@@ -116,7 +122,11 @@ init location =
             Debug.log "Init Command" cmd
     in
         ( { model | state = nextState, phxSocket = socket }
-        , Cmd.batch [ cmd, Task.perform (\x -> WindowSize x) Window.size ]
+        , Cmd.batch
+            [ cmd
+            , Task.perform (\x -> WindowSize x) Window.size
+            , Task.attempt TextureLoaded (Texture.load "/images/0.png")
+            ]
         )
 
 
@@ -217,6 +227,9 @@ update msg model =
 
             WindowSize size ->
                 { model | size = size } ! []
+
+            TextureLoaded result ->
+                ( { model | texture = Result.toMaybe result }, Cmd.none )
 
 
 progressState : Model -> ( State, Phoenix.Socket.Socket Msg, Cmd Msg )
@@ -354,11 +367,13 @@ view model =
             startform model
 
         Playing ->
-            WebGL.toHtml [ width model.size.width, height model.size.height ]
-                ((quad 3 blue)
-                    ++ (card ( 0.1, -0.6 ))
-                    ++ (card ( -0.8, 0.1 ))
-                )
+            case model.texture of
+                Nothing ->
+                    div [] []
+
+                Just texture ->
+                    WebGL.toHtml [ width model.size.width, height model.size.height ]
+                        [ (card (vec2 0.1 -0.6) texture) ]
 
 
 

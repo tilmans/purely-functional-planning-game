@@ -1,117 +1,61 @@
-module Quad exposing (quad, red, blue, card)
+module Quad exposing (card)
 
 import WebGL exposing (..)
+import Math.Vector2 exposing (..)
 import Math.Vector3 exposing (..)
 import Math.Matrix4 exposing (..)
 
 
-width =
-    0.5
+type alias Vertex =
+    { position : Vec3
+    , coord : Vec2
+    }
 
 
-height =
-    1
+card : Vec2 -> Texture -> Entity
+card center texture =
+    entity vertexShader fragmentShader (mesh center) { texture = texture }
 
 
-mesh size color =
-    let
-        minx =
-            -size
-
-        miny =
-            size
-
-        maxx =
-            size
-
-        maxy =
-            -size
-
-        ( r, g, b ) =
-            color
-    in
-        TriangleStrip
-            [ { position = (vec3 minx miny 0), color = (vec3 r g b) }
-            , { position = (vec3 maxx miny 0), color = (vec3 r g b) }
-            , { position = (vec3 maxx maxy 0), color = (vec3 r g b) }
-            , { position = (vec3 minx miny 0), color = (vec3 r g b) }
-            , { position = (vec3 minx maxy 0), color = (vec3 r g b) }
-            ]
-
-
-cardmesh ( x, y ) =
-    let
-        offx =
-            width / 2
-
-        offy =
-            height / 2
-
-        minx =
-            x - offx
-
-        maxx =
-            x + offx
-
-        miny =
-            y - offy
-
-        maxy =
-            y + offy
-    in
-        TriangleStrip
-            [ { position = (vec3 minx miny 0), color = (vec3 0 1 0) }
-            , { position = (vec3 maxx miny 0), color = (vec3 1 0 0) }
-            , { position = (vec3 maxx maxy 0), color = (vec3 1 0 0) }
-            , { position = (vec3 minx miny 0), color = (vec3 1 0 0) }
-            , { position = (vec3 minx maxy 0), color = (vec3 1 0 0) }
-            ]
-
-
-quad size color =
-    [ render vertexShader fragmentShader (mesh size color) {} ]
-
-
-card : ( Float, Float ) -> List WebGL.Renderable
-card center =
-    [ (render vertexShader fragmentShader (cardmesh center)) {} ]
+mesh : Vec2 -> Mesh Vertex
+mesh center =
+    indexedTriangles
+        [ Vertex (vec3 1 0 0) (vec2 1 0)
+        , Vertex (vec3 1 1 0) (vec2 1 1)
+        , Vertex (vec3 0 1 0) (vec2 0 1)
+        , Vertex (vec3 0 0 0) (vec2 0 0)
+        ]
+        [ ( 0, 1, 2 )
+        , ( 2, 3, 0 )
+        ]
 
 
 
 -- SHADERS
 
 
-vertexShader : Shader { attr | position : Vec3, color : Vec3 } {} { vcolor : Vec3 }
+vertexShader : Shader Vertex { texture : Texture } { vcoord : Vec2 }
 vertexShader =
     [glsl|
     attribute vec3 position;
-    attribute vec3 color;
-
-    varying vec3 vcolor;
+    attribute vec2 coord;
+    varying vec2 vcoord;
 
     void main () {
         gl_Position = vec4(position, 1.0);
-        vcolor = color;
+        vcoord = coord;
     }
 |]
 
 
-fragmentShader : Shader {} {} { vcolor : Vec3 }
+fragmentShader : Shader {} { u | texture : Texture } { vcoord : Vec2 }
 fragmentShader =
     [glsl|
     precision mediump float;
-
-    varying vec3 vcolor;
+    uniform sampler2D texture;
+    varying vec2 vcoord;
 
     void main () {
-        gl_FragColor = vec4(vcolor,1);
+        gl_FragColor = texture2D(texture, vcoord);
     }
 |]
-
-
-red =
-    ( 1, 0, 0 )
-
-
-blue =
-    ( 0, 0, 1 )

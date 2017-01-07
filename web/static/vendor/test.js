@@ -4997,6 +4997,281 @@ var _elm_community$linear_algebra$Math_Matrix4$identity = _elm_community$linear_
 var _elm_community$linear_algebra$Math_Matrix4$transform = _elm_community$linear_algebra$Native_MJS.v3mul4x4;
 var _elm_community$linear_algebra$Math_Matrix4$Mat4 = {ctor: 'Mat4'};
 
+
+/*
+ * Copyright (c) 2010 Mozilla Corporation
+ * Copyright (c) 2010 Vladimir Vukicevic
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * File: mjs
+ *
+ * Vector and Matrix math utilities for JavaScript, optimized for WebGL.
+ * Edited to work with the Elm Programming Language
+ */
+
+var _elm_community$linear_algebra$Native_Math_Vector2 = function() {
+
+    var MJS_FLOAT_ARRAY_TYPE = Float32Array;
+
+    var V2 = { };
+
+    if (MJS_FLOAT_ARRAY_TYPE == Array) {
+        V2.$ = function V2_$(x, y) {
+            return [x, y];
+        };
+    } else {
+        V2.$ = function V2_$(x, y) {
+            return new MJS_FLOAT_ARRAY_TYPE([x, y]);
+        };
+    }
+
+    V2.getX = function V2_getX(a) {
+        return a[0];
+    }
+    V2.getY = function V2_getY(a) {
+        return a[1];
+    }
+    V2.setX = function V2_setX(x, a) {
+        return new MJS_FLOAT_ARRAY_TYPE([x, a[1]]);
+    }
+    V2.setY = function V2_setY(y, a) {
+        return new MJS_FLOAT_ARRAY_TYPE([a[0], y]);
+    }
+
+    V2.toTuple = function V2_toTuple(a) {
+        return {
+            ctor:"_Tuple2",
+            _0:a[0],
+            _1:a[1]
+        };
+    };
+    V2.fromTuple = function V2_fromTuple(t) {
+        return new MJS_FLOAT_ARRAY_TYPE([t._0, t._1]);
+    };
+
+    V2.toRecord = function V2_toRecord(a) {
+        return {
+            _:{},
+            x:a[0],
+            y:a[1]
+        };
+    };
+    V2.fromRecord = function V2_fromRecord(r) {
+        return new MJS_FLOAT_ARRAY_TYPE([r.x, r.y]);
+    };
+
+    V2.add = function V2_add(a, b) {
+        var r = new MJS_FLOAT_ARRAY_TYPE(2);
+        r[0] = a[0] + b[0];
+        r[1] = a[1] + b[1];
+        return r;
+    };
+
+    V2.sub = function V2_sub(a, b) {
+        var r = new MJS_FLOAT_ARRAY_TYPE(2);
+        r[0] = a[0] - b[0];
+        r[1] = a[1] - b[1];
+        return r;
+    };
+
+    V2.neg = function V2_neg(a) {
+        var r = new MJS_FLOAT_ARRAY_TYPE(2);
+        r[0] = - a[0];
+        r[1] = - a[1];
+        return r;
+    };
+
+    V2.direction = function V2_direction(a, b) {
+        var r = new MJS_FLOAT_ARRAY_TYPE(2);
+        r[0] = a[0] - b[0];
+        r[1] = a[1] - b[1];
+        var im = 1.0 / V2.length(r);
+        r[0] = r[0] * im;
+        r[1] = r[1] * im;
+        return r;
+    };
+
+    V2.length = function V2_length(a) {
+        return Math.sqrt(a[0]*a[0] + a[1]*a[1]);
+    };
+
+    V2.lengthSquared = function V2_lengthSquared(a) {
+        return a[0]*a[0] + a[1]*a[1];
+    };
+
+    V2.distance = function V2_distance(a, b) {
+        var dx = a[0] - b[0];
+        var dy = a[1] - b[1];
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    V2.distanceSquared = function V2_distanceSquared(a, b) {
+        var dx = a[0] - b[0];
+        var dy = a[1] - b[1];
+        return dx * dx + dy * dy;
+    };
+
+    V2.normalize = function V2_normalize(a) {
+        var r = new MJS_FLOAT_ARRAY_TYPE(2);
+        var im = 1.0 / V2.length(a);
+        r[0] = a[0] * im;
+        r[1] = a[1] * im;
+        return r;
+    };
+
+    V2.scale = function V2_scale(k, a) {
+        var r = new MJS_FLOAT_ARRAY_TYPE(2);
+        r[0] = a[0] * k;
+        r[1] = a[1] * k;
+        return r;
+    };
+
+    V2.dot = function V2_dot(a, b) {
+        return a[0] * b[0] + a[1] * b[1];
+    };
+
+    return {
+        vec2: F2(V2.$),
+        getX: V2.getX,
+        getY: V2.getY,
+        setX: F2(V2.setX),
+        setY: F2(V2.setY),
+        toTuple: V2.toTuple,
+        toRecord: V2.toRecord,
+        fromTuple: V2.fromTuple,
+        fromRecord: V2.fromRecord,
+        add: F2(V2.add),
+        sub: F2(V2.sub),
+        neg: V2.neg,
+        direction: F2(V2.direction),
+        length: V2.length,
+        lengthSquared: V2.lengthSquared,
+        distance: F2(V2.distance),
+        distanceSquared: F2(V2.distanceSquared),
+        normalize: V2.normalize,
+        scale: F2(V2.scale),
+        dot: F2(V2.dot)
+    };
+
+}();
+
+var _elm_community$linear_algebra$Math_Vector2$dot = _elm_community$linear_algebra$Native_Math_Vector2.dot;
+var _elm_community$linear_algebra$Math_Vector2$scale = _elm_community$linear_algebra$Native_Math_Vector2.scale;
+var _elm_community$linear_algebra$Math_Vector2$normalize = _elm_community$linear_algebra$Native_Math_Vector2.normalize;
+var _elm_community$linear_algebra$Math_Vector2$distanceSquared = _elm_community$linear_algebra$Native_Math_Vector2.distanceSquared;
+var _elm_community$linear_algebra$Math_Vector2$distance = _elm_community$linear_algebra$Native_Math_Vector2.distance;
+var _elm_community$linear_algebra$Math_Vector2$lengthSquared = _elm_community$linear_algebra$Native_Math_Vector2.lengthSquared;
+var _elm_community$linear_algebra$Math_Vector2$length = _elm_community$linear_algebra$Native_Math_Vector2.length;
+var _elm_community$linear_algebra$Math_Vector2$direction = _elm_community$linear_algebra$Native_Math_Vector2.direction;
+var _elm_community$linear_algebra$Math_Vector2$negate = _elm_community$linear_algebra$Native_Math_Vector2.neg;
+var _elm_community$linear_algebra$Math_Vector2$sub = _elm_community$linear_algebra$Native_Math_Vector2.sub;
+var _elm_community$linear_algebra$Math_Vector2$add = _elm_community$linear_algebra$Native_Math_Vector2.add;
+var _elm_community$linear_algebra$Math_Vector2$fromRecord = _elm_community$linear_algebra$Native_Math_Vector2.fromRecord;
+var _elm_community$linear_algebra$Math_Vector2$fromTuple = _elm_community$linear_algebra$Native_Math_Vector2.fromTuple;
+var _elm_community$linear_algebra$Math_Vector2$toRecord = _elm_community$linear_algebra$Native_Math_Vector2.toRecord;
+var _elm_community$linear_algebra$Math_Vector2$toTuple = _elm_community$linear_algebra$Native_Math_Vector2.toTuple;
+var _elm_community$linear_algebra$Math_Vector2$setY = _elm_community$linear_algebra$Native_Math_Vector2.setY;
+var _elm_community$linear_algebra$Math_Vector2$setX = _elm_community$linear_algebra$Native_Math_Vector2.setX;
+var _elm_community$linear_algebra$Math_Vector2$getY = _elm_community$linear_algebra$Native_Math_Vector2.getY;
+var _elm_community$linear_algebra$Math_Vector2$getX = _elm_community$linear_algebra$Native_Math_Vector2.getX;
+var _elm_community$linear_algebra$Math_Vector2$vec2 = _elm_community$linear_algebra$Native_Math_Vector2.vec2;
+var _elm_community$linear_algebra$Math_Vector2$Vec2 = {ctor: 'Vec2'};
+
+// eslint-disable-next-line no-unused-vars, camelcase
+var _elm_community$webgl$Native_Texture = function () {
+
+  var NEAREST = 9728;
+  var LINEAR = 9729;
+  var CLAMP_TO_EDGE = 33071;
+
+  function load(magnify, mininify, horizontalWrap, verticalWrap, flipY, url) {
+    // eslint-disable-next-line camelcase
+    var Scheduler = _elm_lang$core$Native_Scheduler;
+    var isMipmap = mininify !== NEAREST && mininify !== LINEAR;
+    return Scheduler.nativeBinding(function (callback) {
+      var img = new Image();
+      function createTexture(gl) {
+        var tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magnify);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mininify);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, horizontalWrap);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, verticalWrap);
+        if (isMipmap) {
+          gl.generateMipmap(gl.TEXTURE_2D);
+        }
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        return tex;
+      }
+      img.onload = function () {
+        var width = img.width;
+        var height = img.height;
+        var widthPowerOfTwo = (width & (width - 1)) === 0;
+        var heightPowerOfTwo = (height & (height - 1)) === 0;
+        var isSizeValid = (widthPowerOfTwo && heightPowerOfTwo) || (
+          !isMipmap
+          && horizontalWrap === CLAMP_TO_EDGE
+          && verticalWrap === CLAMP_TO_EDGE
+        );
+        if (isSizeValid) {
+          callback(Scheduler.succeed({
+            ctor: 'Texture',
+            createTexture: createTexture,
+            width: width,
+            height: height
+          }));
+        } else {
+          callback(Scheduler.fail({
+            ctor: 'SizeError',
+            _0: width,
+            _1: height
+          }));
+        }
+      };
+      img.onerror = function () {
+        callback(Scheduler.fail({ ctor: 'LoadError' }));
+      };
+      img.crossOrigin = 'Anonymous';
+      img.src = url;
+    });
+  }
+
+  function size(texture) {
+    // eslint-disable-next-line camelcase
+    return _elm_lang$core$Native_Utils.Tuple2(texture.width, texture.height);
+  }
+
+  return {
+    size: size,
+    load: F6(load)
+  };
+
+}();
+
 // eslint-disable-next-line no-unused-vars, camelcase
 var _elm_community$webgl$Native_WebGL = function () {
 
@@ -5006,17 +5281,24 @@ var _elm_community$webgl$Native_WebGL = function () {
     // console.log(msg);
   }
 
-  /* eslint-disable camelcase */
   function guid() {
+    // eslint-disable-next-line camelcase
     return _elm_lang$core$Native_Utils.guid();
   }
+  function listEach(fn, list) {
+    while (list.ctor !== '[]') {
+      fn(list._0);
+      list = list._1;
+    }
+  }
   function listLength(list) {
-    return _elm_lang$core$List$length(list);
+    var length = 0;
+    while (list.ctor !== '[]') {
+      length++;
+      list = list._1;
+    }
+    return length;
   }
-  function listMap(fn, list) {
-    return A2(_elm_lang$core$List$map, fn, list);
-  }
-  /* eslint-enable camelcase */
 
   var rAF = typeof requestAnimationFrame !== 'undefined' ?
     requestAnimationFrame :
@@ -5026,75 +5308,116 @@ var _elm_community$webgl$Native_WebGL = function () {
     return { src: src };
   }
 
-  function loadTextureWithFilter(filter, source) {
-    // eslint-disable-next-line camelcase
-    var Scheduler = _elm_lang$core$Native_Scheduler;
-    return Scheduler.nativeBinding(function (callback) {
-      var img = new Image();
-      // prevent the debugger from serializing the image as a record
-      function getImage() {
-        return img;
-      }
-      img.onload = function () {
-        callback(Scheduler.succeed({
-          ctor: 'Texture',
-          img: getImage,
-          filter: filter,
-          width: img.width,
-          height: img.height
-        }));
-      };
-      img.onerror = function () {
-        callback(Scheduler.fail({ ctor: 'Error' }));
-      };
-      img.crossOrigin = 'Anonymous';
-      img.src = source;
-    });
-  }
-
-  function textureSize(texture) {
-    // eslint-disable-next-line camelcase
-    return _elm_lang$core$Native_Utils.Tuple2(texture.width, texture.height);
-  }
-
-  function render(vert, frag, buffer, uniforms, functionCalls) {
+  function entity(settings, vert, frag, buffer, uniforms) {
 
     if (!buffer.guid) {
       buffer.guid = guid();
     }
 
     return {
+      ctor: 'Entity',
       vert: vert,
       frag: frag,
       buffer: buffer,
       uniforms: uniforms,
-      functionCalls: functionCalls
+      settings: settings
     };
 
   }
 
-  function doTexture(gl, texture) {
-
-    var tex = gl.createTexture();
-    LOG('Created texture');
-
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.img());
-    switch (texture.filter.ctor) {
-      case 'Linear':
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+ /**
+  *  Apply setting to the gl context
+  *
+  *  @param {WebGLRenderingContext} gl context
+  *  @param {Setting} setting coming in from Elm
+  */
+  function applySetting(gl, setting) {
+    switch (setting.ctor) {
+      case 'Blend':
+        gl.enable(gl.BLEND);
+        // eq1 f11 f12 eq2 f21 f22 r g b a
+        gl.blendEquationSeparate(setting._0, setting._3);
+        gl.blendFuncSeparate(setting._1, setting._2, setting._4, setting._5);
+        gl.blendColor(setting._6, setting._7, setting._8, setting._9);
         break;
-      case 'Nearest':
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      case 'DepthTest':
+        gl.enable(gl.DEPTH_TEST);
+        // func mask near far
+        gl.depthFunc(setting._0);
+        gl.depthMask(setting._1);
+        gl.depthRange(setting._2, setting._3);
+        break;
+      case 'StencilTest':
+        gl.enable(gl.STENCIL_TEST);
+        // ref mask writeMask test1 fail1 zfail1 zpass1 test2 fail2 zfail2 zpass2
+        gl.stencilFuncSeparate(gl.FRONT, setting._3, setting._0, setting._1);
+        gl.stencilOpSeparate(gl.FRONT, setting._4, setting._5, setting._6);
+        gl.stencilMaskSeparate(gl.FRONT, setting._2);
+        gl.stencilFuncSeparate(gl.BACK, setting._7, setting._0, setting._1);
+        gl.stencilOpSeparate(gl.BACK, setting._8, setting._9, setting._10);
+        gl.stencilMaskSeparate(gl.BACK, setting._2);
+        break;
+      case 'Scissor':
+        gl.enable(gl.SCISSOR_TEST);
+        gl.scissor(setting._0, setting._1, setting._2, setting._3);
+        break;
+      case 'ColorMask':
+        gl.colorMask(setting._0, setting._1, setting._2, setting._3);
+        break;
+      case 'CullFace':
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(setting._0);
+        break;
+      case 'PolygonOffset':
+        gl.enable(gl.POLYGON_OFFSET_FILL);
+        gl.polygonOffset(setting._0, setting._1);
+        break;
+      case 'SampleCoverage':
+        gl.enable(gl.SAMPLE_COVERAGE);
+        gl.sampleCoverage(setting._0, setting._1);
+        break;
+      case 'SampleAlphaToCoverage':
+        gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
         break;
     }
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    return tex;
+  }
 
+ /**
+  *  Revert setting that was applied to the gl context
+  *
+  *  @param {WebGLRenderingContext} gl context
+  *  @param {Setting} setting coming in from Elm
+  */
+  function revertSetting(gl, setting) {
+    switch (setting.ctor) {
+      case 'Blend':
+        gl.disable(gl.BLEND);
+        break;
+      case 'DepthTest':
+        gl.disable(gl.DEPTH_TEST);
+        break;
+      case 'StencilTest':
+        gl.disable(gl.STENCIL_TEST);
+        break;
+      case 'Scissor':
+        gl.disable(gl.SCISSOR_TEST);
+        break;
+      case 'ColorMask':
+        gl.colorMask(true, true, true, true);
+        break;
+      case 'CullFace':
+        gl.disable(gl.CULL_FACE);
+        break;
+      case 'PolygonOffset':
+        gl.disable(gl.POLYGON_OFFSET_FILL);
+        break;
+      case 'SampleCoverage':
+        gl.disable(gl.SAMPLE_COVERAGE);
+        break;
+      case 'SampleAlphaToCoverage':
+        gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+        break;
+    }
   }
 
   function doCompile(gl, src, type) {
@@ -5130,20 +5453,22 @@ var _elm_community$webgl$Native_WebGL = function () {
 
   function getRenderInfo(gl, renderType) {
     switch (renderType) {
-      case 'Triangle':
-        return { mode: gl.TRIANGLES, elemSize: 3 };
+      case 'Triangles':
+        return { mode: gl.TRIANGLES, elemSize: 3, indexSize: 0 };
       case 'LineStrip':
-        return { mode: gl.LINE_STRIP, elemSize: 1 };
+        return { mode: gl.LINE_STRIP, elemSize: 1, indexSize: 0 };
       case 'LineLoop':
-        return { mode: gl.LINE_LOOP, elemSize: 1 };
+        return { mode: gl.LINE_LOOP, elemSize: 1, indexSize: 0 };
       case 'Points':
-        return { mode: gl.POINTS, elemSize: 1 };
+        return { mode: gl.POINTS, elemSize: 1, indexSize: 0 };
       case 'Lines':
-        return { mode: gl.LINES, elemSize: 2 };
+        return { mode: gl.LINES, elemSize: 2, indexSize: 0 };
       case 'TriangleStrip':
-        return { mode: gl.TRIANGLE_STRIP, elemSize: 1 };
+        return { mode: gl.TRIANGLE_STRIP, elemSize: 1, indexSize: 0 };
       case 'TriangleFan':
-        return { mode: gl.TRIANGLE_FAN, elemSize: 1 };
+        return { mode: gl.TRIANGLE_FAN, elemSize: 1, indexSize: 0 };
+      case 'IndexedTriangles':
+        return { mode: gl.TRIANGLES, elemSize: 1, indexSize: 3 };
     }
   }
 
@@ -5210,7 +5535,7 @@ var _elm_community$webgl$Native_WebGL = function () {
     var dataIdx = 0;
     var array = new attributeInfo.type(listLength(bufferElems) * attributeInfo.size * elemSize);
 
-    listMap(function (elem) {
+    listEach(function (elem) {
       dataFill(array, attributeInfo.size, dataIdx, elem, attribute.name);
       dataIdx += attributeInfo.size * elemSize;
     }, bufferElems);
@@ -5224,48 +5549,79 @@ var _elm_community$webgl$Native_WebGL = function () {
   }
 
  /**
-  *  This sets up the binding cacheing buffers.
+  *  This sets up the binding caching buffers.
   *
-  *  We don't actually bind any buffers now except for the indices buffer,
-  *  which we fill with 0..n. The problem with filling the buffers here is
-  *  that it is possible to have a buffer shared between two webgl shaders;
+  *  We don't actually bind any buffers now except for the indices buffer.
+  *  The problem with filling the buffers here is that it is possible to
+  *  have a buffer shared between two webgl shaders;
   *  which could have different active attributes. If we bind it here against
   *  a particular program, we might not bind them all. That final bind is now
   *  done right before drawing.
   *
   *  @param {WebGLRenderingContext} gl context
-  *  @param {List} bufferElems The list coming in from Elm.
-  *  @param {Number} elemSize The length of the number of vertices that
-  *         complete one 'thing' based on the drawing mode.
-  *         ie, 2 for Lines, 3 for Triangles, etc.
-  *
+  *  @param {Object} renderType
+  *  @param {Number} renderType.indexSize size of the index
+  *  @param {Number} renderType.elemSize size of the element
+  *  @param {Drawable} drawable a drawable object from Elm
+  *         that contains elements and optionally indices
   *  @return {Object} buffer - an object with the following properties
   *  @return {Number} buffer.numIndices
   *  @return {WebGLBuffer} buffer.indexBuffer
-  *  @return {Object} buffer.buffers
+  *  @return {Object} buffer.buffers - will be used to buffer attributes
   */
-  function doBindSetup(gl, bufferElems, elemSize) {
-    var buffers = {};
-
-    var numIndices = elemSize * listLength(bufferElems);
-    var indices = new Uint16Array(numIndices);
-    for (var i = 0; i < numIndices; i += 1) {
-      indices[i] = i;
-    }
-    var indexBuffer = gl.createBuffer();
+  function doBindSetup(gl, renderType, drawable) {
     LOG('Created index buffer');
+    var indexBuffer = gl.createBuffer();
+    var indices = (renderType.indexSize === 0)
+      ? makeSequentialBuffer(renderType.elemSize * listLength(drawable._0))
+      : makeIndexedBuffer(drawable._1, renderType.indexSize);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
-    var bufferObject = {
-      numIndices: numIndices,
+    return {
+      numIndices: indices.length,
       indexBuffer: indexBuffer,
-      buffers: buffers
+      buffers: {}
     };
+  }
 
-    return bufferObject;
+ /**
+  *  Create an indices array and fill it with 0..n
+  *
+  *  @param {Number} numIndices The number of indices
+  *  @return {Uint16Array} indices
+  */
+  function makeSequentialBuffer(numIndices) {
+    var indices = new Uint16Array(numIndices);
+    for (var i = 0; i < numIndices; i += 1) {
+      indices[i] = i;
+    }
+    return indices;
+  }
 
+ /**
+  *  Create an indices array and fill it from indices
+  *  based on the size of the index
+  *
+  *  @param {List} indicesList the list of indices
+  *  @param {Number} indexSize the size of the index
+  *  @return {Uint16Array} indices
+  */
+  function makeIndexedBuffer(indicesList, indexSize) {
+    var indices = new Uint16Array(listLength(indicesList) * indexSize);
+    var fillOffset = 0;
+    var i;
+    listEach(function (elem) {
+      if (indexSize === 1) {
+        indices[fillOffset++] = elem;
+      } else {
+        for (i = 0; i < indexSize; i++) {
+          indices[fillOffset++] = elem['_' + i.toString()];
+        }
+      }
+    }, indicesList);
+    return indices;
   }
 
   function getProgID(vertID, fragID) {
@@ -5282,75 +5638,73 @@ var _elm_community$webgl$Native_WebGL = function () {
     }
 
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
     LOG('Drawing');
 
-    function drawEntity(render) {
-      if (listLength(render.buffer._0) === 0) {
+    function drawEntity(entity) {
+      if (listLength(entity.buffer._0) === 0) {
         return;
       }
 
       var progid;
       var program;
-      if (render.vert.id && render.frag.id) {
-        progid = getProgID(render.vert.id, render.frag.id);
+      if (entity.vert.id && entity.frag.id) {
+        progid = getProgID(entity.vert.id, entity.frag.id);
         program = model.cache.programs[progid];
       }
 
       if (!program) {
 
         var vshader;
-        if (render.vert.id) {
-          vshader = model.cache.shaders[render.vert.id];
+        if (entity.vert.id) {
+          vshader = model.cache.shaders[entity.vert.id];
         } else {
-          render.vert.id = guid();
+          entity.vert.id = guid();
         }
 
         if (!vshader) {
-          vshader = doCompile(gl, render.vert.src, gl.VERTEX_SHADER);
-          model.cache.shaders[render.vert.id] = vshader;
+          vshader = doCompile(gl, entity.vert.src, gl.VERTEX_SHADER);
+          model.cache.shaders[entity.vert.id] = vshader;
         }
 
         var fshader;
-        if (render.frag.id) {
-          fshader = model.cache.shaders[render.frag.id];
+        if (entity.frag.id) {
+          fshader = model.cache.shaders[entity.frag.id];
         } else {
-          render.frag.id = guid();
+          entity.frag.id = guid();
         }
 
         if (!fshader) {
-          fshader = doCompile(gl, render.frag.src, gl.FRAGMENT_SHADER);
-          model.cache.shaders[render.frag.id] = fshader;
+          fshader = doCompile(gl, entity.frag.src, gl.FRAGMENT_SHADER);
+          model.cache.shaders[entity.frag.id] = fshader;
         }
 
         program = doLink(gl, vshader, fshader);
-        progid = getProgID(render.vert.id, render.frag.id);
+        progid = getProgID(entity.vert.id, entity.frag.id);
         model.cache.programs[progid] = program;
 
       }
 
       gl.useProgram(program);
 
-      progid = progid || getProgID(render.vert.id, render.frag.id);
+      progid = progid || getProgID(entity.vert.id, entity.frag.id);
       var setters = model.cache.uniformSetters[progid];
       if (!setters) {
         setters = createUniformSetters(gl, model, program);
         model.cache.uniformSetters[progid] = setters;
       }
 
-      setUniforms(setters, render.uniforms);
+      setUniforms(setters, entity.uniforms);
 
-      var renderType = getRenderInfo(gl, render.buffer.ctor);
-      var buffer = model.cache.buffers[render.buffer.guid];
+      var entityType = getRenderInfo(gl, entity.buffer.ctor);
+      var buffer = model.cache.buffers[entity.buffer.guid];
 
       if (!buffer) {
-        buffer = doBindSetup(gl, render.buffer._0, renderType.elemSize);
-        model.cache.buffers[render.buffer.guid] = buffer;
+        buffer = doBindSetup(gl, entityType, entity.buffer);
+        model.cache.buffers[entity.buffer.guid] = buffer;
       }
 
-      var numIndices = buffer.numIndices;
-      var indexBuffer = buffer.indexBuffer;
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indexBuffer);
 
       var numAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
 
@@ -5361,23 +5715,28 @@ var _elm_community$webgl$Native_WebGL = function () {
         gl.enableVertexAttribArray(attribLocation);
 
         if (buffer.buffers[attribute.name] === undefined) {
-          buffer.buffers[attribute.name] = doBindAttribute(gl, attribute, render.buffer._0, renderType.elemSize);
+          buffer.buffers[attribute.name] = doBindAttribute(gl, attribute, entity.buffer._0, entityType.elemSize);
         }
         var attributeBuffer = buffer.buffers[attribute.name];
         var attributeInfo = getAttributeInfo(gl, attribute.type);
 
-        listMap(function (functionCall) {
-          functionCall(gl);
-        }, render.functionCalls);
-
         gl.bindBuffer(gl.ARRAY_BUFFER, attributeBuffer);
         gl.vertexAttribPointer(attribLocation, attributeInfo.size, attributeInfo.baseType, false, 0, 0);
       }
-      gl.drawElements(renderType.mode, numIndices, gl.UNSIGNED_SHORT, 0);
+
+      listEach(function (setting) {
+        applySetting(gl, setting);
+      }, entity.settings);
+
+      gl.drawElements(entityType.mode, buffer.numIndices, gl.UNSIGNED_SHORT, 0);
+
+      listEach(function (setting) {
+        revertSetting(gl, setting);
+      }, entity.settings);
 
     }
 
-    listMap(drawEntity, model.renderables);
+    listEach(drawEntity, model.entities);
     return domNode;
   }
 
@@ -5424,7 +5783,8 @@ var _elm_community$webgl$Native_WebGL = function () {
               texture.id = guid();
             }
             if (!tex) {
-              tex = doTexture(gl, texture);
+              LOG('Created texture');
+              tex = texture.createTexture(gl);
               model.cache.textures[texture.id] = tex;
             }
             gl.activeTexture(gl[activeName]);
@@ -5460,93 +5820,20 @@ var _elm_community$webgl$Native_WebGL = function () {
     });
   }
 
-  function enable(capability) {
-    return function (gl) {
-      gl.enable(gl[capability]);
-    };
-  }
-
-  function disable(capability) {
-    return function (gl) {
-      gl.disable(gl[capability]);
-    };
-  }
-
-  function blendColor(r, g, b, a) {
-    return function (gl) {
-      gl.blendColor(r, g, b, a);
-    };
-  }
-
-  function blendEquation(mode) {
-    return function (gl) {
-      gl.blendEquation(gl[mode]);
-    };
-  }
-
-  function blendEquationSeparate(modeRGB, modeAlpha) {
-    return function (gl) {
-      gl.blendEquationSeparate(gl[modeRGB], gl[modeAlpha]);
-    };
-  }
-
-  function blendFunc(src, dst) {
-    return function (gl) {
-      gl.blendFunc(gl[src], gl[dst]);
-    };
-  }
-
-  function depthFunc(mode) {
-    return function (gl) {
-      gl.depthFunc(gl[mode]);
-    };
-  }
-
-  function sampleCoverage(value, invert) {
-    return function (gl) {
-      gl.sampleCoverage(value, invert);
-    };
-  }
-
-  function stencilFunc(func, ref, mask) {
-    return function (gl) {
-      gl.stencilFunc(gl[func], ref, mask);
-    };
-  }
-
-  function stencilFuncSeparate(face, func, ref, mask) {
-    return function (gl) {
-      gl.stencilFuncSeparate(gl[face], gl[func], ref, mask);
-    };
-  }
-
-  function stencilOperation(fail, zfail, zpass) {
-    return function (gl) {
-      gl.stencilOp(gl[fail], gl[zfail], gl[zpass]);
-    };
-  }
-
-  function stencilOperationSeparate(face, fail, zfail, zpass) {
-    return function (gl) {
-      gl.stencilOpSeparate(gl[face], gl[fail], gl[zfail], gl[zpass]);
-    };
-  }
-
-
   // VIRTUAL-DOM WIDGET
 
-  function toHtml(functionCalls, factList, renderables) {
+  function toHtml(options, factList, entities) {
     var model = {
-      functionCalls: functionCalls,
-      renderables: renderables,
-      cache: {}
+      entities: entities,
+      cache: {},
+      options: options
     };
     // eslint-disable-next-line camelcase
     return _elm_lang$virtual_dom$Native_VirtualDom.custom(factList, model, implementation);
   }
 
   var implementation = {
-    render: renderCanvas,
+    render: render,
     diff: diff
   };
 
@@ -5555,20 +5842,62 @@ var _elm_community$webgl$Native_WebGL = function () {
    *  @param {Object} model
    *  @param {Object} model.cache that may contain the following properties:
              gl, shaders, programs, uniformSetters, buffers, textures
-   *  @param {List} model.functionCalls
-   *  @param {List} model.renderables
+   *  @param {List<Option>} model.options list of options coming from Elm
+   *  @param {List<Entity>} model.entities list of entities coming from Elm
    *  @return {HTMLElement} <canvas> if WebGL is supported, otherwise a <div>
    */
-  function renderCanvas(model) {
+  function render(model) {
+
+    var contextAttributes = {
+      alpha: false,
+      depth: false,
+      stencil: false,
+      antialias: false,
+      premultipliedAlpha: false
+    };
+    var sceneSettings = [];
+
+    listEach(function (option) {
+      var s1 = option._0;
+      switch (option.ctor) {
+        case 'Alpha':
+          contextAttributes.alpha = true;
+          contextAttributes.premultipliedAlpha = s1;
+          break;
+        case 'Antialias':
+          contextAttributes.antialias = true;
+          break;
+        case 'Depth':
+          contextAttributes.depth = true;
+          sceneSettings.push(function (gl) {
+            gl.clearDepth(s1);
+          });
+          break;
+        case 'ClearColor':
+          sceneSettings.push(function (gl) {
+            gl.clearColor(option._0, option._1, option._2, option._3);
+          });
+          break;
+        case 'Stencil':
+          contextAttributes.stencil = true;
+          sceneSettings.push(function (gl) {
+            gl.clearStencil(s1);
+          });
+          break;
+      }
+    }, model.options);
 
     LOG('Render canvas');
     var canvas = document.createElement('canvas');
-    var gl = canvas.getContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+    var gl = canvas.getContext && (
+      canvas.getContext('webgl', contextAttributes) ||
+      canvas.getContext('experimental-webgl', contextAttributes)
+    );
 
     if (gl) {
-      listMap(function (functionCall) {
-        functionCall(gl);
-      }, model.functionCalls);
+      sceneSettings.forEach(function (sceneSetting) {
+        sceneSetting(gl);
+      });
     } else {
       canvas = document.createElement('div');
       canvas.innerHTML = '<a href="http://get.webgl.org/">Enable WebGL</a> to see this content!';
@@ -5603,22 +5932,8 @@ var _elm_community$webgl$Native_WebGL = function () {
 
   return {
     unsafeCoerceGLSL: unsafeCoerceGLSL,
-    textureSize: textureSize,
-    loadTextureWithFilter: F2(loadTextureWithFilter),
-    render: F5(render),
-    toHtml: F3(toHtml),
-    enable: enable,
-    disable: disable,
-    blendColor: F4(blendColor),
-    blendEquation: blendEquation,
-    blendEquationSeparate: F2(blendEquationSeparate),
-    blendFunc: F2(blendFunc),
-    depthFunc: depthFunc,
-    sampleCoverage: F2(sampleCoverage),
-    stencilFunc: F3(stencilFunc),
-    stencilFuncSeparate: F4(stencilFuncSeparate),
-    stencilOperation: F3(stencilOperation),
-    stencilOperationSeparate: F4(stencilOperationSeparate)
+    entity: F5(entity),
+    toHtml: F3(toHtml)
   };
 
 }();
@@ -14411,313 +14726,255 @@ var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
 
-var _elm_community$webgl$WebGL$computeZModeString = function (mode) {
-	var _p0 = mode;
-	switch (_p0.ctor) {
-		case 'Keep':
-			return 'KEEP';
-		case 'None':
-			return 'ZERO';
-		case 'Replace':
-			return 'REPLACE';
-		case 'Increment':
-			return 'INCREMENT';
-		case 'Decrement':
-			return 'DECREMENT';
-		case 'Invert':
-			return 'INVERT';
-		case 'IncrementWrap':
-			return 'INCREMENT_WRAP';
-		default:
-			return 'DECREMENT_WRAP';
-	}
-};
-var _elm_community$webgl$WebGL$computeFaceModeString = function (mode) {
-	var _p1 = mode;
-	switch (_p1.ctor) {
-		case 'Front':
-			return 'FRONT';
-		case 'Back':
-			return 'BACK';
-		default:
-			return 'FRONT_AND_BACK';
-	}
-};
-var _elm_community$webgl$WebGL$computeCompareModeString = function (mode) {
-	var _p2 = mode;
-	switch (_p2.ctor) {
-		case 'Never':
-			return 'NEVER';
-		case 'Always':
-			return 'ALWAYS';
-		case 'Less':
-			return 'LESS';
-		case 'LessOrEqual':
-			return 'LEQUAL';
-		case 'Equal':
-			return 'EQUAL';
-		case 'GreaterOrEqual':
-			return 'GEQUAL';
-		case 'Greater':
-			return 'Greater';
-		default:
-			return 'NOTEQUAL';
-	}
-};
-var _elm_community$webgl$WebGL$computeBlendModeString = function (mode) {
-	var _p3 = mode;
-	switch (_p3.ctor) {
-		case 'Add':
-			return 'FUNC_ADD';
-		case 'Subtract':
-			return 'FUNC_SUBTRACT';
-		default:
-			return 'FUNC_REVERSE_SUBTRACT';
-	}
-};
-var _elm_community$webgl$WebGL$computeBlendOperationString = function (operation) {
-	var _p4 = operation;
-	switch (_p4.ctor) {
-		case 'Zero':
-			return 'ZERO';
-		case 'One':
-			return 'ONE';
-		case 'SrcColor':
-			return 'SRC_COLOR';
-		case 'OneMinusSrcColor':
-			return 'ONE_MINUS_SRC_COLOR';
-		case 'DstColor':
-			return 'DST_COLOR';
-		case 'OneMinusDstColor':
-			return 'ONE_MINUS_DST_COLOR';
-		case 'SrcAlpha':
-			return 'SRC_ALPHA';
-		case 'OneMinusSrcAlpha':
-			return 'ONE_MINUS_SRC_ALPHA';
-		case 'DstAlpha':
-			return 'DST_ALPHA';
-		case 'OneMinusDstAlpha':
-			return 'ONE_MINUS_DST_ALPHA';
-		case 'ConstantColor':
-			return 'CONSTANT_COLOR';
-		case 'OneMinusConstantColor':
-			return 'ONE_MINUS_CONSTANT_COLOR';
-		case 'ConstantAlpha':
-			return 'CONSTANT_ALPHA';
-		case 'OneMinusConstantAlpha':
-			return 'ONE_MINUS_CONSTANT_ALPHA';
-		default:
-			return 'SRC_ALPHA_SATURATE';
-	}
-};
-var _elm_community$webgl$WebGL$computeCapabilityString = function (capability) {
-	var _p5 = capability;
-	switch (_p5.ctor) {
-		case 'Blend':
-			return 'BLEND';
-		case 'CullFace':
-			return 'CULL_FACE';
-		case 'DepthTest':
-			return 'DEPTH_TEST';
-		case 'Dither':
-			return 'DITHER';
-		case 'PolygonOffsetFill':
-			return 'POLYGON_OFFSET_FILL';
-		case 'SampleAlphaToCoverage':
-			return 'SAMPLE_ALPHA_TO_COVERAGE';
-		case 'SampleCoverage':
-			return 'SAMPLE_COVERAGE';
-		case 'ScissorTest':
-			return 'SCISSOR_TEST';
-		default:
-			return 'STENCIL_TEST';
-	}
-};
-var _elm_community$webgl$WebGL$computeAPICall = function ($function) {
-	var _p6 = $function;
-	switch (_p6.ctor) {
-		case 'Enable':
-			return _elm_community$webgl$Native_WebGL.enable(
-				_elm_community$webgl$WebGL$computeCapabilityString(_p6._0));
-		case 'Disable':
-			return _elm_community$webgl$Native_WebGL.disable(
-				_elm_community$webgl$WebGL$computeCapabilityString(_p6._0));
-		case 'BlendColor':
-			return A4(_elm_community$webgl$Native_WebGL.blendColor, _p6._0._0, _p6._0._1, _p6._0._2, _p6._0._3);
-		case 'BlendEquation':
-			return _elm_community$webgl$Native_WebGL.blendEquation(
-				_elm_community$webgl$WebGL$computeBlendModeString(_p6._0));
-		case 'BlendEquationSeparate':
-			var modeAlpha = _elm_community$webgl$WebGL$computeBlendModeString(_p6._0._1);
-			var modeRGB = _elm_community$webgl$WebGL$computeBlendModeString(_p6._0._0);
-			return A2(_elm_community$webgl$Native_WebGL.blendEquationSeparate, modeRGB, modeAlpha);
-		case 'BlendFunc':
-			var dst = _elm_community$webgl$WebGL$computeBlendOperationString(_p6._0._1);
-			var src = _elm_community$webgl$WebGL$computeBlendOperationString(_p6._0._0);
-			return A2(_elm_community$webgl$Native_WebGL.blendFunc, src, dst);
-		case 'DepthFunc':
-			return _elm_community$webgl$Native_WebGL.depthFunc(
-				_elm_community$webgl$WebGL$computeCompareModeString(_p6._0));
-		case 'SampleCoverageFunc':
-			return A2(_elm_community$webgl$Native_WebGL.sampleCoverage, _p6._0._0, _p6._0._1);
-		case 'StencilFunc':
-			var mode = _elm_community$webgl$WebGL$computeCompareModeString(_p6._0._0);
-			return A3(_elm_community$webgl$Native_WebGL.stencilFunc, mode, _p6._0._1, _p6._0._2);
-		case 'StencilFuncSeparate':
-			var mode = _elm_community$webgl$WebGL$computeCompareModeString(_p6._0._1);
-			var face = _elm_community$webgl$WebGL$computeFaceModeString(_p6._0._0);
-			return A4(_elm_community$webgl$Native_WebGL.stencilFuncSeparate, face, mode, _p6._0._2, _p6._0._3);
-		case 'StencilOperation':
-			var zpass = _elm_community$webgl$WebGL$computeZModeString(_p6._0._2);
-			var zfail = _elm_community$webgl$WebGL$computeZModeString(_p6._0._1);
-			var fail = _elm_community$webgl$WebGL$computeZModeString(_p6._0._0);
-			return A3(_elm_community$webgl$Native_WebGL.stencilOperation, fail, zfail, zpass);
-		default:
-			var zpass = _elm_community$webgl$WebGL$computeZModeString(_p6._0._3);
-			var zfail = _elm_community$webgl$WebGL$computeZModeString(_p6._0._2);
-			var fail = _elm_community$webgl$WebGL$computeZModeString(_p6._0._1);
-			var face = _elm_community$webgl$WebGL$computeFaceModeString(_p6._0._0);
-			return A4(_elm_community$webgl$Native_WebGL.stencilOperationSeparate, face, fail, zfail, zpass);
-	}
-};
-var _elm_community$webgl$WebGL$computeAPICalls = function (functionCalls) {
-	return A2(_elm_lang$core$List$map, _elm_community$webgl$WebGL$computeAPICall, functionCalls);
-};
-var _elm_community$webgl$WebGL$toHtmlWith = function (functionCalls) {
-	return _elm_community$webgl$Native_WebGL.toHtml(
-		_elm_community$webgl$WebGL$computeAPICalls(functionCalls));
-};
-var _elm_community$webgl$WebGL$renderWithConfig = F5(
-	function (functionCalls, vert, frag, buffer, uniforms) {
-		return A5(
-			_elm_community$webgl$Native_WebGL.render,
-			vert,
-			frag,
-			buffer,
-			uniforms,
-			_elm_community$webgl$WebGL$computeAPICalls(functionCalls));
+var _elm_community$webgl$WebGL_Settings_Internal$SampleAlphaToCoverage = {ctor: 'SampleAlphaToCoverage'};
+var _elm_community$webgl$WebGL_Settings_Internal$SampleCoverage = F2(
+	function (a, b) {
+		return {ctor: 'SampleCoverage', _0: a, _1: b};
 	});
-var _elm_community$webgl$WebGL$render = _elm_community$webgl$WebGL$renderWithConfig(
-	{ctor: '[]'});
-var _elm_community$webgl$WebGL$textureSize = _elm_community$webgl$Native_WebGL.textureSize;
-var _elm_community$webgl$WebGL$loadTextureWithFilter = _elm_community$webgl$Native_WebGL.loadTextureWithFilter;
+var _elm_community$webgl$WebGL_Settings_Internal$PolygonOffset = F2(
+	function (a, b) {
+		return {ctor: 'PolygonOffset', _0: a, _1: b};
+	});
+var _elm_community$webgl$WebGL_Settings_Internal$CullFace = function (a) {
+	return {ctor: 'CullFace', _0: a};
+};
+var _elm_community$webgl$WebGL_Settings_Internal$ColorMask = F4(
+	function (a, b, c, d) {
+		return {ctor: 'ColorMask', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_community$webgl$WebGL_Settings_Internal$Scissor = F4(
+	function (a, b, c, d) {
+		return {ctor: 'Scissor', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_community$webgl$WebGL_Settings_Internal$StencilTest = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {ctor: 'StencilTest', _0: a, _1: b, _2: c, _3: d, _4: e, _5: f, _6: g, _7: h, _8: i, _9: j, _10: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _elm_community$webgl$WebGL_Settings_Internal$DepthTest = F4(
+	function (a, b, c, d) {
+		return {ctor: 'DepthTest', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_community$webgl$WebGL_Settings_Internal$Blend = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return {ctor: 'Blend', _0: a, _1: b, _2: c, _3: d, _4: e, _5: f, _6: g, _7: h, _8: i, _9: j};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+
+var _elm_community$webgl$WebGL_Settings$cullFace = function (_p0) {
+	var _p1 = _p0;
+	return _elm_community$webgl$WebGL_Settings_Internal$CullFace(_p1._0);
+};
+var _elm_community$webgl$WebGL_Settings$sampleCoverage = _elm_community$webgl$WebGL_Settings_Internal$SampleCoverage;
+var _elm_community$webgl$WebGL_Settings$sampleAlphaToCoverage = _elm_community$webgl$WebGL_Settings_Internal$SampleAlphaToCoverage;
+var _elm_community$webgl$WebGL_Settings$polygonOffset = _elm_community$webgl$WebGL_Settings_Internal$PolygonOffset;
+var _elm_community$webgl$WebGL_Settings$colorMask = _elm_community$webgl$WebGL_Settings_Internal$ColorMask;
+var _elm_community$webgl$WebGL_Settings$scissor = _elm_community$webgl$WebGL_Settings_Internal$Scissor;
+var _elm_community$webgl$WebGL_Settings$FaceMode = function (a) {
+	return {ctor: 'FaceMode', _0: a};
+};
+var _elm_community$webgl$WebGL_Settings$front = _elm_community$webgl$WebGL_Settings$FaceMode(1028);
+var _elm_community$webgl$WebGL_Settings$back = _elm_community$webgl$WebGL_Settings$FaceMode(1029);
+var _elm_community$webgl$WebGL_Settings$frontAndBack = _elm_community$webgl$WebGL_Settings$FaceMode(1032);
+
+var _elm_community$webgl$WebGL_Settings_DepthTest$greaterOrEqual = function (_p0) {
+	var _p1 = _p0;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 518, _p1.write, _p1.near, _p1.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$lessOrEqual = function (_p2) {
+	var _p3 = _p2;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 515, _p3.write, _p3.near, _p3.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$notEqual = function (_p4) {
+	var _p5 = _p4;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 517, _p5.write, _p5.near, _p5.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$greater = function (_p6) {
+	var _p7 = _p6;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 516, _p7.write, _p7.near, _p7.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$equal = function (_p8) {
+	var _p9 = _p8;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 514, _p9.write, _p9.near, _p9.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$always = function (_p10) {
+	var _p11 = _p10;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 519, _p11.write, _p11.near, _p11.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$never = function (_p12) {
+	var _p13 = _p12;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 512, _p13.write, _p13.near, _p13.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$less = function (_p14) {
+	var _p15 = _p14;
+	return A4(_elm_community$webgl$WebGL_Settings_Internal$DepthTest, 513, _p15.write, _p15.near, _p15.far);
+};
+var _elm_community$webgl$WebGL_Settings_DepthTest$default = _elm_community$webgl$WebGL_Settings_DepthTest$less(
+	{write: true, near: 0, far: 1});
+var _elm_community$webgl$WebGL_Settings_DepthTest$Options = F3(
+	function (a, b, c) {
+		return {write: a, near: b, far: c};
+	});
+
+var _elm_community$webgl$WebGL$toHtmlWith = F3(
+	function (options, attributes, entities) {
+		return A3(_elm_community$webgl$Native_WebGL.toHtml, options, attributes, entities);
+	});
+var _elm_community$webgl$WebGL$entityWith = _elm_community$webgl$Native_WebGL.entity;
+var _elm_community$webgl$WebGL$entity = _elm_community$webgl$WebGL$entityWith(
+	{
+		ctor: '::',
+		_0: _elm_community$webgl$WebGL_Settings_DepthTest$default,
+		_1: {ctor: '[]'}
+	});
 var _elm_community$webgl$WebGL$unsafeShader = _elm_community$webgl$Native_WebGL.unsafeCoerceGLSL;
+var _elm_community$webgl$WebGL$IndexedTriangles = F2(
+	function (a, b) {
+		return {ctor: 'IndexedTriangles', _0: a, _1: b};
+	});
+var _elm_community$webgl$WebGL$indexedTriangles = _elm_community$webgl$WebGL$IndexedTriangles;
 var _elm_community$webgl$WebGL$TriangleStrip = function (a) {
 	return {ctor: 'TriangleStrip', _0: a};
 };
+var _elm_community$webgl$WebGL$triangleStrip = _elm_community$webgl$WebGL$TriangleStrip;
 var _elm_community$webgl$WebGL$TriangleFan = function (a) {
 	return {ctor: 'TriangleFan', _0: a};
 };
+var _elm_community$webgl$WebGL$triangleFan = _elm_community$webgl$WebGL$TriangleFan;
 var _elm_community$webgl$WebGL$Points = function (a) {
 	return {ctor: 'Points', _0: a};
 };
+var _elm_community$webgl$WebGL$points = _elm_community$webgl$WebGL$Points;
 var _elm_community$webgl$WebGL$LineLoop = function (a) {
 	return {ctor: 'LineLoop', _0: a};
 };
+var _elm_community$webgl$WebGL$lineLoop = _elm_community$webgl$WebGL$LineLoop;
 var _elm_community$webgl$WebGL$LineStrip = function (a) {
 	return {ctor: 'LineStrip', _0: a};
 };
+var _elm_community$webgl$WebGL$lineStrip = _elm_community$webgl$WebGL$LineStrip;
 var _elm_community$webgl$WebGL$Lines = function (a) {
 	return {ctor: 'Lines', _0: a};
 };
-var _elm_community$webgl$WebGL$Triangle = function (a) {
-	return {ctor: 'Triangle', _0: a};
+var _elm_community$webgl$WebGL$lines = _elm_community$webgl$WebGL$Lines;
+var _elm_community$webgl$WebGL$Triangles = function (a) {
+	return {ctor: 'Triangles', _0: a};
 };
+var _elm_community$webgl$WebGL$triangles = _elm_community$webgl$WebGL$Triangles;
 var _elm_community$webgl$WebGL$Shader = {ctor: 'Shader'};
 var _elm_community$webgl$WebGL$Texture = {ctor: 'Texture'};
-var _elm_community$webgl$WebGL$Nearest = {ctor: 'Nearest'};
-var _elm_community$webgl$WebGL$Linear = {ctor: 'Linear'};
-var _elm_community$webgl$WebGL$loadTexture = _elm_community$webgl$WebGL$loadTextureWithFilter(_elm_community$webgl$WebGL$Linear);
-var _elm_community$webgl$WebGL$Error = {ctor: 'Error'};
-var _elm_community$webgl$WebGL$Renderable = {ctor: 'Renderable'};
-var _elm_community$webgl$WebGL$StencilOperationSeparate = function (a) {
-	return {ctor: 'StencilOperationSeparate', _0: a};
+var _elm_community$webgl$WebGL$Entity = {ctor: 'Entity'};
+var _elm_community$webgl$WebGL$ClearColor = F4(
+	function (a, b, c, d) {
+		return {ctor: 'ClearColor', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_community$webgl$WebGL$clearColor = _elm_community$webgl$WebGL$ClearColor;
+var _elm_community$webgl$WebGL$Antialias = {ctor: 'Antialias'};
+var _elm_community$webgl$WebGL$antialias = _elm_community$webgl$WebGL$Antialias;
+var _elm_community$webgl$WebGL$Stencil = function (a) {
+	return {ctor: 'Stencil', _0: a};
 };
-var _elm_community$webgl$WebGL$StencilOperation = function (a) {
-	return {ctor: 'StencilOperation', _0: a};
+var _elm_community$webgl$WebGL$stencil = _elm_community$webgl$WebGL$Stencil;
+var _elm_community$webgl$WebGL$Depth = function (a) {
+	return {ctor: 'Depth', _0: a};
 };
-var _elm_community$webgl$WebGL$StencilFuncSeparate = function (a) {
-	return {ctor: 'StencilFuncSeparate', _0: a};
+var _elm_community$webgl$WebGL$depth = _elm_community$webgl$WebGL$Depth;
+var _elm_community$webgl$WebGL$Alpha = function (a) {
+	return {ctor: 'Alpha', _0: a};
 };
-var _elm_community$webgl$WebGL$StencilFunc = function (a) {
-	return {ctor: 'StencilFunc', _0: a};
+var _elm_community$webgl$WebGL$alpha = _elm_community$webgl$WebGL$Alpha;
+var _elm_community$webgl$WebGL$toHtml = _elm_community$webgl$WebGL$toHtmlWith(
+	{
+		ctor: '::',
+		_0: _elm_community$webgl$WebGL$alpha(true),
+		_1: {
+			ctor: '::',
+			_0: _elm_community$webgl$WebGL$antialias,
+			_1: {
+				ctor: '::',
+				_0: _elm_community$webgl$WebGL$depth(1),
+				_1: {ctor: '[]'}
+			}
+		}
+	});
+
+var _elm_community$webgl$WebGL_Texture$size = _elm_community$webgl$Native_Texture.size;
+var _elm_community$webgl$WebGL_Texture$loadWith = F2(
+	function (_p0, url) {
+		var _p1 = _p0;
+		var expand = F4(
+			function (_p5, _p4, _p3, _p2) {
+				var _p6 = _p5;
+				var _p7 = _p4;
+				var _p8 = _p3;
+				var _p9 = _p2;
+				return A6(_elm_community$webgl$Native_Texture.load, _p6._0, _p7._0, _p8._0, _p9._0, _p1.flipY, url);
+			});
+		return A4(expand, _p1.magnify, _p1.minify, _p1.horizontalWrap, _p1.verticalWrap);
+	});
+var _elm_community$webgl$WebGL_Texture$Options = F5(
+	function (a, b, c, d, e) {
+		return {magnify: a, minify: b, horizontalWrap: c, verticalWrap: d, flipY: e};
+	});
+var _elm_community$webgl$WebGL_Texture$SizeError = F2(
+	function (a, b) {
+		return {ctor: 'SizeError', _0: a, _1: b};
+	});
+var _elm_community$webgl$WebGL_Texture$LoadError = {ctor: 'LoadError'};
+var _elm_community$webgl$WebGL_Texture$Resize = function (a) {
+	return {ctor: 'Resize', _0: a};
 };
-var _elm_community$webgl$WebGL$SampleCoverageFunc = function (a) {
-	return {ctor: 'SampleCoverageFunc', _0: a};
+var _elm_community$webgl$WebGL_Texture$linear = _elm_community$webgl$WebGL_Texture$Resize(9729);
+var _elm_community$webgl$WebGL_Texture$nearest = _elm_community$webgl$WebGL_Texture$Resize(9728);
+var _elm_community$webgl$WebGL_Texture$nearestMipmapNearest = _elm_community$webgl$WebGL_Texture$Resize(9984);
+var _elm_community$webgl$WebGL_Texture$linearMipmapNearest = _elm_community$webgl$WebGL_Texture$Resize(9985);
+var _elm_community$webgl$WebGL_Texture$nearestMipmapLinear = _elm_community$webgl$WebGL_Texture$Resize(9986);
+var _elm_community$webgl$WebGL_Texture$linearMipmapLinear = _elm_community$webgl$WebGL_Texture$Resize(9987);
+var _elm_community$webgl$WebGL_Texture$Bigger = {ctor: 'Bigger'};
+var _elm_community$webgl$WebGL_Texture$Smaller = {ctor: 'Smaller'};
+var _elm_community$webgl$WebGL_Texture$Wrap = function (a) {
+	return {ctor: 'Wrap', _0: a};
 };
-var _elm_community$webgl$WebGL$DepthFunc = function (a) {
-	return {ctor: 'DepthFunc', _0: a};
-};
-var _elm_community$webgl$WebGL$BlendFunc = function (a) {
-	return {ctor: 'BlendFunc', _0: a};
-};
-var _elm_community$webgl$WebGL$BlendEquationSeparate = function (a) {
-	return {ctor: 'BlendEquationSeparate', _0: a};
-};
-var _elm_community$webgl$WebGL$BlendEquation = function (a) {
-	return {ctor: 'BlendEquation', _0: a};
-};
-var _elm_community$webgl$WebGL$BlendColor = function (a) {
-	return {ctor: 'BlendColor', _0: a};
-};
-var _elm_community$webgl$WebGL$Disable = function (a) {
-	return {ctor: 'Disable', _0: a};
-};
-var _elm_community$webgl$WebGL$Enable = function (a) {
-	return {ctor: 'Enable', _0: a};
-};
-var _elm_community$webgl$WebGL$StencilTest = {ctor: 'StencilTest'};
-var _elm_community$webgl$WebGL$ScissorTest = {ctor: 'ScissorTest'};
-var _elm_community$webgl$WebGL$SampleCoverage = {ctor: 'SampleCoverage'};
-var _elm_community$webgl$WebGL$SampleAlphaToCoverage = {ctor: 'SampleAlphaToCoverage'};
-var _elm_community$webgl$WebGL$PolygonOffsetFill = {ctor: 'PolygonOffsetFill'};
-var _elm_community$webgl$WebGL$Dither = {ctor: 'Dither'};
-var _elm_community$webgl$WebGL$DepthTest = {ctor: 'DepthTest'};
-var _elm_community$webgl$WebGL$defaultConfiguration = {
-	ctor: '::',
-	_0: _elm_community$webgl$WebGL$Enable(_elm_community$webgl$WebGL$DepthTest),
-	_1: {ctor: '[]'}
-};
-var _elm_community$webgl$WebGL$toHtml = _elm_community$webgl$WebGL$toHtmlWith(_elm_community$webgl$WebGL$defaultConfiguration);
-var _elm_community$webgl$WebGL$CullFace = {ctor: 'CullFace'};
-var _elm_community$webgl$WebGL$Blend = {ctor: 'Blend'};
-var _elm_community$webgl$WebGL$SrcAlphaSaturate = {ctor: 'SrcAlphaSaturate'};
-var _elm_community$webgl$WebGL$OneMinusConstantAlpha = {ctor: 'OneMinusConstantAlpha'};
-var _elm_community$webgl$WebGL$ConstantAlpha = {ctor: 'ConstantAlpha'};
-var _elm_community$webgl$WebGL$OneMinusConstantColor = {ctor: 'OneMinusConstantColor'};
-var _elm_community$webgl$WebGL$ConstantColor = {ctor: 'ConstantColor'};
-var _elm_community$webgl$WebGL$OneMinusDstAlpha = {ctor: 'OneMinusDstAlpha'};
-var _elm_community$webgl$WebGL$DstAlpha = {ctor: 'DstAlpha'};
-var _elm_community$webgl$WebGL$OneMinusSrcAlpha = {ctor: 'OneMinusSrcAlpha'};
-var _elm_community$webgl$WebGL$SrcAlpha = {ctor: 'SrcAlpha'};
-var _elm_community$webgl$WebGL$OneMinusDstColor = {ctor: 'OneMinusDstColor'};
-var _elm_community$webgl$WebGL$DstColor = {ctor: 'DstColor'};
-var _elm_community$webgl$WebGL$OneMinusSrcColor = {ctor: 'OneMinusSrcColor'};
-var _elm_community$webgl$WebGL$SrcColor = {ctor: 'SrcColor'};
-var _elm_community$webgl$WebGL$One = {ctor: 'One'};
-var _elm_community$webgl$WebGL$Zero = {ctor: 'Zero'};
-var _elm_community$webgl$WebGL$ReverseSubtract = {ctor: 'ReverseSubtract'};
-var _elm_community$webgl$WebGL$Subtract = {ctor: 'Subtract'};
-var _elm_community$webgl$WebGL$Add = {ctor: 'Add'};
-var _elm_community$webgl$WebGL$NotEqual = {ctor: 'NotEqual'};
-var _elm_community$webgl$WebGL$Greater = {ctor: 'Greater'};
-var _elm_community$webgl$WebGL$GreaterOrEqual = {ctor: 'GreaterOrEqual'};
-var _elm_community$webgl$WebGL$Equal = {ctor: 'Equal'};
-var _elm_community$webgl$WebGL$LessOrEqual = {ctor: 'LessOrEqual'};
-var _elm_community$webgl$WebGL$Less = {ctor: 'Less'};
-var _elm_community$webgl$WebGL$Always = {ctor: 'Always'};
-var _elm_community$webgl$WebGL$Never = {ctor: 'Never'};
-var _elm_community$webgl$WebGL$FrontAndBack = {ctor: 'FrontAndBack'};
-var _elm_community$webgl$WebGL$Back = {ctor: 'Back'};
-var _elm_community$webgl$WebGL$Front = {ctor: 'Front'};
-var _elm_community$webgl$WebGL$DecrementWrap = {ctor: 'DecrementWrap'};
-var _elm_community$webgl$WebGL$IncrementWrap = {ctor: 'IncrementWrap'};
-var _elm_community$webgl$WebGL$Invert = {ctor: 'Invert'};
-var _elm_community$webgl$WebGL$Decrement = {ctor: 'Decrement'};
-var _elm_community$webgl$WebGL$Increment = {ctor: 'Increment'};
-var _elm_community$webgl$WebGL$Replace = {ctor: 'Replace'};
-var _elm_community$webgl$WebGL$None = {ctor: 'None'};
-var _elm_community$webgl$WebGL$Keep = {ctor: 'Keep'};
+var _elm_community$webgl$WebGL_Texture$repeat = _elm_community$webgl$WebGL_Texture$Wrap(10497);
+var _elm_community$webgl$WebGL_Texture$defaultOptions = {magnify: _elm_community$webgl$WebGL_Texture$linear, minify: _elm_community$webgl$WebGL_Texture$nearestMipmapLinear, horizontalWrap: _elm_community$webgl$WebGL_Texture$repeat, verticalWrap: _elm_community$webgl$WebGL_Texture$repeat, flipY: true};
+var _elm_community$webgl$WebGL_Texture$load = _elm_community$webgl$WebGL_Texture$loadWith(_elm_community$webgl$WebGL_Texture$defaultOptions);
+var _elm_community$webgl$WebGL_Texture$clampToEdge = _elm_community$webgl$WebGL_Texture$Wrap(33071);
+var _elm_community$webgl$WebGL_Texture$nonPowerOfTwoOptions = {magnify: _elm_community$webgl$WebGL_Texture$linear, minify: _elm_community$webgl$WebGL_Texture$nearest, horizontalWrap: _elm_community$webgl$WebGL_Texture$clampToEdge, verticalWrap: _elm_community$webgl$WebGL_Texture$clampToEdge, flipY: true};
+var _elm_community$webgl$WebGL_Texture$mirroredRepeat = _elm_community$webgl$WebGL_Texture$Wrap(33648);
 
 //import Native.Scheduler //
 
@@ -17530,133 +17787,63 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 			});
 	});
 
-var _user$project$Quad$blue = {ctor: '_Tuple3', _0: 0, _1: 0, _2: 1};
-var _user$project$Quad$red = {ctor: '_Tuple3', _0: 1, _1: 0, _2: 0};
-var _user$project$Quad$fragmentShader = {'src': '\n    precision mediump float;\n\n    varying vec3 vcolor;\n\n    void main () {\n        gl_FragColor = vec4(vcolor,1);\n    }\n'};
-var _user$project$Quad$vertexShader = {'src': '\n    attribute vec3 position;\n    attribute vec3 color;\n\n    varying vec3 vcolor;\n\n    void main () {\n        gl_Position = vec4(position, 1.0);\n        vcolor = color;\n    }\n'};
-var _user$project$Quad$mesh = F2(
-	function (size, color) {
-		var _p0 = color;
-		var r = _p0._0;
-		var g = _p0._1;
-		var b = _p0._2;
-		var maxy = 0 - size;
-		var maxx = size;
-		var miny = size;
-		var minx = 0 - size;
-		return _elm_community$webgl$WebGL$TriangleStrip(
-			{
-				ctor: '::',
-				_0: {
-					position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, minx, miny, 0),
-					color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, r, g, b)
-				},
-				_1: {
-					ctor: '::',
-					_0: {
-						position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, maxx, miny, 0),
-						color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, r, g, b)
-					},
-					_1: {
-						ctor: '::',
-						_0: {
-							position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, maxx, maxy, 0),
-							color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, r, g, b)
-						},
-						_1: {
-							ctor: '::',
-							_0: {
-								position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, minx, miny, 0),
-								color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, r, g, b)
-							},
-							_1: {
-								ctor: '::',
-								_0: {
-									position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, minx, maxy, 0),
-									color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, r, g, b)
-								},
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				}
-			});
+var _user$project$Quad$fragmentShader = {'src': '\n    precision mediump float;\n    uniform sampler2D texture;\n    varying vec2 vcoord;\n\n    void main () {\n        gl_FragColor = texture2D(texture, vcoord);\n    }\n'};
+var _user$project$Quad$vertexShader = {'src': '\n    attribute vec3 position;\n    attribute vec2 coord;\n    varying vec2 vcoord;\n\n    void main () {\n        gl_Position = vec4(position, 1.0);\n        vcoord = coord;\n    }\n'};
+var _user$project$Quad$Vertex = F2(
+	function (a, b) {
+		return {position: a, coord: b};
 	});
-var _user$project$Quad$quad = F2(
-	function (size, color) {
-		return {
-			ctor: '::',
-			_0: A4(
-				_elm_community$webgl$WebGL$render,
-				_user$project$Quad$vertexShader,
-				_user$project$Quad$fragmentShader,
-				A2(_user$project$Quad$mesh, size, color),
-				{}),
-			_1: {ctor: '[]'}
-		};
-	});
-var _user$project$Quad$height = 1;
-var _user$project$Quad$width = 0.5;
-var _user$project$Quad$cardmesh = function (_p1) {
-	var _p2 = _p1;
-	var _p4 = _p2._1;
-	var _p3 = _p2._0;
-	var offy = _user$project$Quad$height / 2;
-	var miny = _p4 - offy;
-	var maxy = _p4 + offy;
-	var offx = _user$project$Quad$width / 2;
-	var minx = _p3 - offx;
-	var maxx = _p3 + offx;
-	return _elm_community$webgl$WebGL$TriangleStrip(
+var _user$project$Quad$mesh = function (center) {
+	return A2(
+		_elm_community$webgl$WebGL$indexedTriangles,
 		{
 			ctor: '::',
-			_0: {
-				position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, minx, miny, 0),
-				color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 1, 0)
-			},
+			_0: A2(
+				_user$project$Quad$Vertex,
+				A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 0, 0),
+				A2(_elm_community$linear_algebra$Math_Vector2$vec2, 1, 0)),
 			_1: {
 				ctor: '::',
-				_0: {
-					position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, maxx, miny, 0),
-					color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 0, 0)
-				},
+				_0: A2(
+					_user$project$Quad$Vertex,
+					A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 1, 0),
+					A2(_elm_community$linear_algebra$Math_Vector2$vec2, 1, 1)),
 				_1: {
 					ctor: '::',
-					_0: {
-						position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, maxx, maxy, 0),
-						color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 0, 0)
-					},
+					_0: A2(
+						_user$project$Quad$Vertex,
+						A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 1, 0),
+						A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 1)),
 					_1: {
 						ctor: '::',
-						_0: {
-							position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, minx, miny, 0),
-							color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 0, 0)
-						},
-						_1: {
-							ctor: '::',
-							_0: {
-								position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, minx, maxy, 0),
-								color: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 0, 0)
-							},
-							_1: {ctor: '[]'}
-						}
+						_0: A2(
+							_user$project$Quad$Vertex,
+							A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 0, 0),
+							A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 0)),
+						_1: {ctor: '[]'}
 					}
 				}
 			}
+		},
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple3', _0: 0, _1: 1, _2: 2},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple3', _0: 2, _1: 3, _2: 0},
+				_1: {ctor: '[]'}
+			}
 		});
 };
-var _user$project$Quad$card = function (center) {
-	return {
-		ctor: '::',
-		_0: A4(
-			_elm_community$webgl$WebGL$render,
+var _user$project$Quad$card = F2(
+	function (center, texture) {
+		return A4(
+			_elm_community$webgl$WebGL$entity,
 			_user$project$Quad$vertexShader,
 			_user$project$Quad$fragmentShader,
-			_user$project$Quad$cardmesh(center),
-			{}),
-		_1: {ctor: '[]'}
-	};
-};
+			_user$project$Quad$mesh(center),
+			{texture: texture});
+	});
 
 var _user$project$Hello$extract = F3(
 	function (lookFor, values, accum) {
@@ -17798,10 +17985,30 @@ var _user$project$Hello$decodeVote = A3(
 	_user$project$Hello$Vote,
 	A2(_elm_lang$core$Json_Decode$field, 'user', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'number', _elm_lang$core$Json_Decode$int));
-var _user$project$Hello$Model = F9(
-	function (a, b, c, d, e, f, g, h, i) {
-		return {phxSocket: a, message: b, channel: c, roomID: d, played: e, name: f, votes: g, state: h, size: i};
-	});
+var _user$project$Hello$Model = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return {phxSocket: a, message: b, channel: c, roomID: d, played: e, name: f, votes: g, state: h, size: i, texture: j};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _user$project$Hello$TextureLoaded = function (a) {
+	return {ctor: 'TextureLoaded', _0: a};
+};
 var _user$project$Hello$WindowSize = function (a) {
 	return {ctor: 'WindowSize', _0: a};
 };
@@ -17944,26 +18151,33 @@ var _user$project$Hello$view = function (model) {
 		case 'RoomInput':
 			return _user$project$Hello$startform(model);
 		default:
-			return A2(
-				_elm_community$webgl$WebGL$toHtml,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$width(model.size.width),
-					_1: {
+			var _p2 = model.texture;
+			if (_p2.ctor === 'Nothing') {
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{ctor: '[]'});
+			} else {
+				return A2(
+					_elm_community$webgl$WebGL$toHtml,
+					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$height(model.size.height),
+						_0: _elm_lang$html$Html_Attributes$width(model.size.width),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$height(model.size.height),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_user$project$Quad$card,
+							A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.1, -0.6),
+							_p2._0),
 						_1: {ctor: '[]'}
-					}
-				},
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					A2(_user$project$Quad$quad, 3, _user$project$Quad$blue),
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_user$project$Quad$card(
-							{ctor: '_Tuple2', _0: 0.1, _1: -0.6}),
-						_user$project$Quad$card(
-							{ctor: '_Tuple2', _0: -0.8, _1: 0.1}))));
+					});
+			}
 	}
 };
 var _user$project$Hello$VoteFromServer = function (a) {
@@ -17985,12 +18199,12 @@ var _user$project$Hello$play = function (model) {
 	if (_elm_lang$core$Native_Utils.eq(model.name, _elm_lang$core$Maybe$Nothing)) {
 		return _elm_lang$core$Platform_Cmd$none;
 	} else {
-		var _p2 = model.channel;
-		if (_p2.ctor === 'Nothing') {
+		var _p3 = model.channel;
+		if (_p3.ctor === 'Nothing') {
 			return _elm_lang$core$Platform_Cmd$none;
 		} else {
-			var _p3 = model.played;
-			if (_p3.ctor === 'Nothing') {
+			var _p4 = model.played;
+			if (_p4.ctor === 'Nothing') {
 				return _elm_lang$core$Platform_Cmd$none;
 			} else {
 				var payload = _elm_lang$core$Json_Encode$object(
@@ -18007,7 +18221,7 @@ var _user$project$Hello$play = function (model) {
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'number',
-								_1: _elm_lang$core$Json_Encode$int(_p3._0)
+								_1: _elm_lang$core$Json_Encode$int(_p4._0)
 							},
 							_1: {ctor: '[]'}
 						}
@@ -18015,10 +18229,10 @@ var _user$project$Hello$play = function (model) {
 				var push = A2(
 					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p2._0));
-				var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
-				var phxSocket = _p4._0;
-				var phxCmd = _p4._1;
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p3._0));
+				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
+				var phxSocket = _p5._0;
+				var phxCmd = _p5._1;
 				return A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd);
 			}
 		}
@@ -18041,9 +18255,9 @@ var _user$project$Hello$connectSocket = function (model) {
 				_fbonetti$elm_phoenix_socket$Phoenix_Channel$withPayload,
 				_user$project$Hello$userParams,
 				_fbonetti$elm_phoenix_socket$Phoenix_Channel$init(channelID))));
-	var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
-	var phxSocket = _p5._0;
-	var phxCmd = _p5._1;
+	var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
+	var phxSocket = _p6._0;
+	var phxCmd = _p6._1;
 	var phxSocketListen = A4(_fbonetti$elm_phoenix_socket$Phoenix_Socket$on, 'play.card', channelID, _user$project$Hello$VoteFromServer, phxSocket);
 	return {
 		ctor: '_Tuple2',
@@ -18055,8 +18269,8 @@ var _user$project$Hello$Playing = {ctor: 'Playing'};
 var _user$project$Hello$RoomInput = {ctor: 'RoomInput'};
 var _user$project$Hello$NameInput = {ctor: 'NameInput'};
 var _user$project$Hello$progressState = function (model) {
-	var _p6 = model.state;
-	switch (_p6.ctor) {
+	var _p7 = model.state;
+	switch (_p7.ctor) {
 		case 'NameInput':
 			if (_elm_lang$core$Native_Utils.eq(model.name, _elm_lang$core$Maybe$Nothing)) {
 				return {ctor: '_Tuple3', _0: _user$project$Hello$NameInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
@@ -18064,9 +18278,9 @@ var _user$project$Hello$progressState = function (model) {
 				if (_elm_lang$core$Native_Utils.eq(model.roomID, _elm_lang$core$Maybe$Nothing)) {
 					return {ctor: '_Tuple3', _0: _user$project$Hello$RoomInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var _p7 = _user$project$Hello$connectSocket(model);
-					var socket = _p7._0;
-					var cmd = _p7._1;
+					var _p8 = _user$project$Hello$connectSocket(model);
+					var socket = _p8._0;
+					var cmd = _p8._1;
 					return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 				}
 			}
@@ -18074,15 +18288,15 @@ var _user$project$Hello$progressState = function (model) {
 			if (_elm_lang$core$Native_Utils.eq(model.roomID, _elm_lang$core$Maybe$Nothing)) {
 				return {ctor: '_Tuple3', _0: _user$project$Hello$RoomInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
 			} else {
-				var _p8 = _user$project$Hello$connectSocket(model);
-				var socket = _p8._0;
-				var cmd = _p8._1;
+				var _p9 = _user$project$Hello$connectSocket(model);
+				var socket = _p9._0;
+				var cmd = _p9._1;
 				return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 			}
 		default:
-			var _p9 = _user$project$Hello$connectSocket(model);
-			var socket = _p9._0;
-			var cmd = _p9._1;
+			var _p10 = _user$project$Hello$connectSocket(model);
+			var socket = _p10._0;
+			var cmd = _p10._1;
 			return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 	}
 };
@@ -18095,9 +18309,9 @@ var _user$project$Hello$init = function (location) {
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(
 				_user$project$Hello$socketServer(location))));
-	var _p10 = _user$project$Hello$getIdFrom(location.search);
-	var name = _p10._0;
-	var id = _p10._1;
+	var _p11 = _user$project$Hello$getIdFrom(location.search);
+	var name = _p11._0;
+	var id = _p11._1;
 	var model = {
 		phxSocket: initsocket,
 		message: '',
@@ -18107,13 +18321,14 @@ var _user$project$Hello$init = function (location) {
 		name: name,
 		votes: {ctor: '[]'},
 		state: _user$project$Hello$NameInput,
-		size: A2(_elm_lang$window$Window$Size, 400, 400)
+		size: A2(_elm_lang$window$Window$Size, 400, 400),
+		texture: _elm_lang$core$Maybe$Nothing
 	};
-	var _p11 = _user$project$Hello$progressState(model);
-	var nextState = _p11._0;
-	var socket = _p11._1;
-	var cmd = _p11._2;
-	var _p12 = A2(_elm_lang$core$Debug$log, 'Init Command', cmd);
+	var _p12 = _user$project$Hello$progressState(model);
+	var nextState = _p12._0;
+	var socket = _p12._1;
+	var cmd = _p12._2;
+	var _p13 = A2(_elm_lang$core$Debug$log, 'Init Command', cmd);
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
@@ -18131,16 +18346,23 @@ var _user$project$Hello$init = function (location) {
 							return _user$project$Hello$WindowSize(x);
 						},
 						_elm_lang$window$Window$size),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$core$Task$attempt,
+							_user$project$Hello$TextureLoaded,
+							_elm_community$webgl$WebGL_Texture$load('/images/0.png')),
+						_1: {ctor: '[]'}
+					}
 				}
 			})
 	};
 };
 var _user$project$Hello$update = F2(
 	function (msg, model) {
-		var _p13 = A2(_elm_lang$core$Debug$log, 'Update', msg);
-		var _p14 = msg;
-		switch (_p14.ctor) {
+		var _p14 = A2(_elm_lang$core$Debug$log, 'Update', msg);
+		var _p15 = msg;
+		switch (_p15.ctor) {
 			case 'UrlChange':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -18161,14 +18383,14 @@ var _user$project$Hello$update = F2(
 						model,
 						{
 							message: 'Joined Channel',
-							channel: _elm_lang$core$Maybe$Just(_p14._0)
+							channel: _elm_lang$core$Maybe$Just(_p15._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'PhoenixMsg':
-				var _p15 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p14._0, model.phxSocket);
-				var phxSocket = _p15._0;
-				var phxCmd = _p15._1;
+				var _p16 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p15._0, model.phxSocket);
+				var phxSocket = _p16._0;
+				var phxCmd = _p16._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -18177,10 +18399,10 @@ var _user$project$Hello$update = F2(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd)
 				};
 			case 'JoinRoom':
-				var _p16 = _user$project$Hello$progressState(model);
-				var nextState = _p16._0;
-				var socket = _p16._1;
-				var cmd = _p16._2;
+				var _p17 = _user$project$Hello$progressState(model);
+				var nextState = _p17._0;
+				var socket = _p17._1;
+				var cmd = _p17._2;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -18205,11 +18427,11 @@ var _user$project$Hello$update = F2(
 					model,
 					{
 						roomID: _elm_lang$core$Maybe$Just(
-							_elm_lang$core$Basics$toString(_p14._0))
+							_elm_lang$core$Basics$toString(_p15._0))
 					});
-				var _p17 = A2(_user$project$Hello$update, _user$project$Hello$JoinRoom, newModel);
-				var joinedModel = _p17._0;
-				var cmd = _p17._1;
+				var _p18 = A2(_user$project$Hello$update, _user$project$Hello$JoinRoom, newModel);
+				var joinedModel = _p18._0;
+				var cmd = _p18._1;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					joinedModel,
@@ -18219,8 +18441,8 @@ var _user$project$Hello$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'RoomIDChanged':
-				var _p18 = _p14._0;
-				var roomID = _elm_lang$core$Native_Utils.eq(_p18, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p18);
+				var _p19 = _p15._0;
+				var roomID = _elm_lang$core$Native_Utils.eq(_p19, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p19);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -18234,14 +18456,14 @@ var _user$project$Hello$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							name: _elm_lang$core$Maybe$Just(_p14._0)
+							name: _elm_lang$core$Maybe$Just(_p15._0)
 						}),
 					{ctor: '[]'});
 			case 'Play':
 				var newmodel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						played: _elm_lang$core$Maybe$Just(_p14._0)
+						played: _elm_lang$core$Maybe$Just(_p15._0)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -18249,24 +18471,24 @@ var _user$project$Hello$update = F2(
 					_1: _user$project$Hello$play(newmodel)
 				};
 			case 'VoteFromServer':
-				var _p22 = _p14._0;
+				var _p23 = _p15._0;
 				var votes = function () {
-					var _p19 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p22);
-					if (_p19.ctor === 'Ok') {
-						var _p20 = _p19._0;
+					var _p20 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p23);
+					if (_p20.ctor === 'Ok') {
+						var _p21 = _p20._0;
 						return {
 							ctor: '::',
-							_0: _p20,
+							_0: _p21,
 							_1: A2(
 								_elm_lang$core$List$filter,
-								_user$project$Hello$notUser(_p20.user),
+								_user$project$Hello$notUser(_p21.user),
 								model.votes)
 						};
 					} else {
 						return model.votes;
 					}
 				}();
-				var _p21 = A2(_elm_lang$core$Debug$log, 'Vote', _p22);
+				var _p22 = A2(_elm_lang$core$Debug$log, 'Vote', _p23);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -18274,10 +18496,10 @@ var _user$project$Hello$update = F2(
 						{votes: votes}),
 					{ctor: '[]'});
 			case 'SetName':
-				var _p23 = _user$project$Hello$progressState(model);
-				var nextState = _p23._0;
-				var socket = _p23._1;
-				var cmd = _p23._2;
+				var _p24 = _user$project$Hello$progressState(model);
+				var nextState = _p24._0;
+				var socket = _p24._1;
+				var cmd = _p24._2;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -18289,18 +18511,28 @@ var _user$project$Hello$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'ListUpdate':
-				var _p24 = A2(_elm_lang$core$Debug$log, 'List', 'Update');
+				var _p25 = A2(_elm_lang$core$Debug$log, 'List', 'Update');
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					{ctor: '[]'});
-			default:
+			case 'WindowSize':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{size: _p14._0}),
+						{size: _p15._0}),
 					{ctor: '[]'});
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							texture: _elm_lang$core$Result$toMaybe(_p15._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _user$project$Hello$main = A2(
@@ -18311,7 +18543,7 @@ var _user$project$Hello$main = A2(
 var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};
 if (typeof _user$project$Hello$main !== 'undefined') {
-    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"JoinRoom":[],"ShowLeaveMessage":["String"],"NameChange":["String"],"WindowSize":["Window.Size"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"SetName":[],"RoomIDChanged":["String"],"ListUpdate":["Json.Encode.Value"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"WebGL.Texture.Error":{"args":[],"tags":{"LoadError":[],"SizeError":["Int","Int"]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"WebGL.Texture":{"args":[],"tags":{"Texture":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"JoinRoom":[],"TextureLoaded":["Result.Result WebGL.Texture.Error WebGL.Texture.Texture"],"ShowLeaveMessage":["String"],"NameChange":["String"],"WindowSize":["Window.Size"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"SetName":[],"RoomIDChanged":["String"],"ListUpdate":["Json.Encode.Value"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"WebGL.Texture.Texture":{"args":[],"type":"WebGL.Texture"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
