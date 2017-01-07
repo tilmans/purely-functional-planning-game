@@ -19363,61 +19363,232 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 			});
 	});
 
+var _user$project$Quad$bgFS = {'src': '\n        precision mediump float;\n\n        void main () {\n            gl_FragColor = vec4(1,0,0,1);\n        }\n'};
+var _user$project$Quad$bgVS = {'src': '\n        attribute vec3 position;\n\n        void main () {\n            gl_Position = vec4(position, 1.0);\n        }\n'};
 var _user$project$Quad$fragmentShader = {'src': '\n    precision mediump float;\n    uniform sampler2D texture;\n    varying vec2 vcoord;\n\n    void main () {\n        gl_FragColor = texture2D(texture, vcoord);\n    }\n'};
 var _user$project$Quad$vertexShader = {'src': '\n    attribute vec3 position;\n    attribute vec2 coord;\n    varying vec2 vcoord;\n\n    void main () {\n        gl_Position = vec4(position, 1.0);\n        vcoord = coord;\n    }\n'};
+var _user$project$Quad$bgmesh = A2(
+	_elm_community$webgl$WebGL$indexedTriangles,
+	{
+		ctor: '::',
+		_0: {
+			position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, -1, -1, 0)
+		},
+		_1: {
+			ctor: '::',
+			_0: {
+				position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, -1, 0)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 1, 0)
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						position: A3(_elm_community$linear_algebra$Math_Vector3$vec3, -1, 1, 0)
+					},
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	},
+	{
+		ctor: '::',
+		_0: {ctor: '_Tuple3', _0: 0, _1: 1, _2: 2},
+		_1: {
+			ctor: '::',
+			_0: {ctor: '_Tuple3', _0: 0, _1: 2, _2: 3},
+			_1: {ctor: '[]'}
+		}
+	});
+var _user$project$Quad$bg = A4(
+	_elm_community$webgl$WebGL$entity,
+	_user$project$Quad$bgVS,
+	_user$project$Quad$bgFS,
+	_user$project$Quad$bgmesh,
+	{});
+var _user$project$Quad$c13 = {
+	ctor: '::',
+	_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.75, 0),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.75, 0.5),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 0.5),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 0),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _user$project$Quad$c8 = {
+	ctor: '::',
+	_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 0),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 0.5),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 0.5),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 0),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _user$project$Quad$c5 = {
+	ctor: '::',
+	_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 0),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 0.5),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 0.5),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 0),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _user$project$Quad$c3 = {
+	ctor: '::',
+	_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 1, 0.5),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 1, 1),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.75, 1),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.75, 0.5),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _user$project$Quad$c2 = {
+	ctor: '::',
+	_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.75, 0.5),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.75, 1),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 1),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 0.5),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _user$project$Quad$c1 = {
+	ctor: '::',
+	_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 0.5),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.5, 1),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 1),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 0.5),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _user$project$Quad$c0 = {
+	ctor: '::',
+	_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 0.5),
+	_1: {
+		ctor: '::',
+		_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.25, 1),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 1),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 0.5),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _user$project$Quad$verteces = {
+	ctor: '::',
+	_0: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0.25, 0, 0),
+	_1: {
+		ctor: '::',
+		_0: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0.25, 0.4, 0),
+		_1: {
+			ctor: '::',
+			_0: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 0.4, 0),
+			_1: {
+				ctor: '::',
+				_0: A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 0, 0),
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
 var _user$project$Quad$Vertex = F2(
 	function (a, b) {
 		return {position: a, coord: b};
 	});
-var _user$project$Quad$mesh = function (center) {
-	return A2(
-		_elm_community$webgl$WebGL$indexedTriangles,
-		{
-			ctor: '::',
-			_0: A2(
-				_user$project$Quad$Vertex,
-				A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 0, 0),
-				A2(_elm_community$linear_algebra$Math_Vector2$vec2, 1, 0)),
-			_1: {
+var _user$project$Quad$mesh = F2(
+	function (center, card) {
+		var v3 = A3(
+			_elm_community$linear_algebra$Math_Vector3$vec3,
+			_elm_community$linear_algebra$Math_Vector2$getX(center),
+			_elm_community$linear_algebra$Math_Vector2$getY(center),
+			0);
+		var trans = _elm_community$linear_algebra$Math_Matrix4$makeTranslate(v3);
+		var translated = A2(
+			_elm_lang$core$List$map,
+			_elm_community$linear_algebra$Math_Matrix4$transform(trans),
+			_user$project$Quad$verteces);
+		var att = A3(
+			_elm_lang$core$List$map2,
+			F2(
+				function (v, c) {
+					return A2(_user$project$Quad$Vertex, v, c);
+				}),
+			translated,
+			card);
+		return A2(
+			_elm_community$webgl$WebGL$indexedTriangles,
+			att,
+			{
 				ctor: '::',
-				_0: A2(
-					_user$project$Quad$Vertex,
-					A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 1, 0),
-					A2(_elm_community$linear_algebra$Math_Vector2$vec2, 1, 1)),
+				_0: {ctor: '_Tuple3', _0: 0, _1: 1, _2: 2},
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_user$project$Quad$Vertex,
-						A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 1, 0),
-						A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 1)),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_user$project$Quad$Vertex,
-							A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 0, 0),
-							A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0, 0)),
-						_1: {ctor: '[]'}
-					}
+					_0: {ctor: '_Tuple3', _0: 2, _1: 3, _2: 0},
+					_1: {ctor: '[]'}
 				}
-			}
-		},
-		{
-			ctor: '::',
-			_0: {ctor: '_Tuple3', _0: 0, _1: 1, _2: 2},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple3', _0: 2, _1: 3, _2: 0},
-				_1: {ctor: '[]'}
-			}
-		});
-};
-var _user$project$Quad$card = F2(
-	function (center, texture) {
+			});
+	});
+var _user$project$Quad$card = F3(
+	function (center, texture, card) {
 		return A4(
 			_elm_community$webgl$WebGL$entity,
 			_user$project$Quad$vertexShader,
 			_user$project$Quad$fragmentShader,
-			_user$project$Quad$mesh(center),
+			A2(_user$project$Quad$mesh, center, card),
 			{texture: texture});
 	});
 
@@ -19734,6 +19905,7 @@ var _user$project$Hello$view = function (model) {
 					{ctor: '[]'},
 					{ctor: '[]'});
 			} else {
+				var _p3 = _p2._0;
 				return A2(
 					_elm_community$webgl$WebGL$toHtml,
 					{
@@ -19747,11 +19919,64 @@ var _user$project$Hello$view = function (model) {
 					},
 					{
 						ctor: '::',
-						_0: A2(
+						_0: A3(
 							_user$project$Quad$card,
-							A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.1, -0.6),
-							_p2._0),
-						_1: {ctor: '[]'}
+							A2(_elm_community$linear_algebra$Math_Vector2$vec2, -0.95, -0.9),
+							_p3,
+							_user$project$Quad$c0),
+						_1: {
+							ctor: '::',
+							_0: A3(
+								_user$project$Quad$card,
+								A2(_elm_community$linear_algebra$Math_Vector2$vec2, -0.68, -0.9),
+								_p3,
+								_user$project$Quad$c1),
+							_1: {
+								ctor: '::',
+								_0: A3(
+									_user$project$Quad$card,
+									A2(_elm_community$linear_algebra$Math_Vector2$vec2, -0.41, -0.9),
+									_p3,
+									_user$project$Quad$c2),
+								_1: {
+									ctor: '::',
+									_0: A3(
+										_user$project$Quad$card,
+										A2(_elm_community$linear_algebra$Math_Vector2$vec2, -0.14, -0.9),
+										_p3,
+										_user$project$Quad$c3),
+									_1: {
+										ctor: '::',
+										_0: A3(
+											_user$project$Quad$card,
+											A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.13, -0.9),
+											_p3,
+											_user$project$Quad$c5),
+										_1: {
+											ctor: '::',
+											_0: A3(
+												_user$project$Quad$card,
+												A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.4, -0.9),
+												_p3,
+												_user$project$Quad$c8),
+											_1: {
+												ctor: '::',
+												_0: A3(
+													_user$project$Quad$card,
+													A2(_elm_community$linear_algebra$Math_Vector2$vec2, 0.67, -0.9),
+													_p3,
+													_user$project$Quad$c13),
+												_1: {
+													ctor: '::',
+													_0: _user$project$Quad$bg,
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 					});
 			}
 	}
@@ -19775,12 +20000,12 @@ var _user$project$Hello$play = function (model) {
 	if (_elm_lang$core$Native_Utils.eq(model.name, _elm_lang$core$Maybe$Nothing)) {
 		return _elm_lang$core$Platform_Cmd$none;
 	} else {
-		var _p3 = model.channel;
-		if (_p3.ctor === 'Nothing') {
+		var _p4 = model.channel;
+		if (_p4.ctor === 'Nothing') {
 			return _elm_lang$core$Platform_Cmd$none;
 		} else {
-			var _p4 = model.played;
-			if (_p4.ctor === 'Nothing') {
+			var _p5 = model.played;
+			if (_p5.ctor === 'Nothing') {
 				return _elm_lang$core$Platform_Cmd$none;
 			} else {
 				var payload = _elm_lang$core$Json_Encode$object(
@@ -19797,7 +20022,7 @@ var _user$project$Hello$play = function (model) {
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'number',
-								_1: _elm_lang$core$Json_Encode$int(_p4._0)
+								_1: _elm_lang$core$Json_Encode$int(_p5._0)
 							},
 							_1: {ctor: '[]'}
 						}
@@ -19805,10 +20030,10 @@ var _user$project$Hello$play = function (model) {
 				var push = A2(
 					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p3._0));
-				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
-				var phxSocket = _p5._0;
-				var phxCmd = _p5._1;
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p4._0));
+				var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
+				var phxSocket = _p6._0;
+				var phxCmd = _p6._1;
 				return A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd);
 			}
 		}
@@ -19831,9 +20056,9 @@ var _user$project$Hello$connectSocket = function (model) {
 				_fbonetti$elm_phoenix_socket$Phoenix_Channel$withPayload,
 				_user$project$Hello$userParams,
 				_fbonetti$elm_phoenix_socket$Phoenix_Channel$init(channelID))));
-	var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
-	var phxSocket = _p6._0;
-	var phxCmd = _p6._1;
+	var _p7 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
+	var phxSocket = _p7._0;
+	var phxCmd = _p7._1;
 	var phxSocketListen = A4(_fbonetti$elm_phoenix_socket$Phoenix_Socket$on, 'play.card', channelID, _user$project$Hello$VoteFromServer, phxSocket);
 	return {
 		ctor: '_Tuple2',
@@ -19845,8 +20070,8 @@ var _user$project$Hello$Playing = {ctor: 'Playing'};
 var _user$project$Hello$RoomInput = {ctor: 'RoomInput'};
 var _user$project$Hello$NameInput = {ctor: 'NameInput'};
 var _user$project$Hello$progressState = function (model) {
-	var _p7 = model.state;
-	switch (_p7.ctor) {
+	var _p8 = model.state;
+	switch (_p8.ctor) {
 		case 'NameInput':
 			if (_elm_lang$core$Native_Utils.eq(model.name, _elm_lang$core$Maybe$Nothing)) {
 				return {ctor: '_Tuple3', _0: _user$project$Hello$NameInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
@@ -19854,9 +20079,9 @@ var _user$project$Hello$progressState = function (model) {
 				if (_elm_lang$core$Native_Utils.eq(model.roomID, _elm_lang$core$Maybe$Nothing)) {
 					return {ctor: '_Tuple3', _0: _user$project$Hello$RoomInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var _p8 = _user$project$Hello$connectSocket(model);
-					var socket = _p8._0;
-					var cmd = _p8._1;
+					var _p9 = _user$project$Hello$connectSocket(model);
+					var socket = _p9._0;
+					var cmd = _p9._1;
 					return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 				}
 			}
@@ -19864,15 +20089,15 @@ var _user$project$Hello$progressState = function (model) {
 			if (_elm_lang$core$Native_Utils.eq(model.roomID, _elm_lang$core$Maybe$Nothing)) {
 				return {ctor: '_Tuple3', _0: _user$project$Hello$RoomInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
 			} else {
-				var _p9 = _user$project$Hello$connectSocket(model);
-				var socket = _p9._0;
-				var cmd = _p9._1;
+				var _p10 = _user$project$Hello$connectSocket(model);
+				var socket = _p10._0;
+				var cmd = _p10._1;
 				return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 			}
 		default:
-			var _p10 = _user$project$Hello$connectSocket(model);
-			var socket = _p10._0;
-			var cmd = _p10._1;
+			var _p11 = _user$project$Hello$connectSocket(model);
+			var socket = _p11._0;
+			var cmd = _p11._1;
 			return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 	}
 };
@@ -19885,9 +20110,9 @@ var _user$project$Hello$init = function (location) {
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(
 				_user$project$Hello$socketServer(location))));
-	var _p11 = _user$project$Hello$getIdFrom(location.search);
-	var name = _p11._0;
-	var id = _p11._1;
+	var _p12 = _user$project$Hello$getIdFrom(location.search);
+	var name = _p12._0;
+	var id = _p12._1;
 	var model = {
 		phxSocket: initsocket,
 		message: '',
@@ -19900,11 +20125,11 @@ var _user$project$Hello$init = function (location) {
 		size: A2(_elm_lang$window$Window$Size, 400, 400),
 		texture: _elm_lang$core$Maybe$Nothing
 	};
-	var _p12 = _user$project$Hello$progressState(model);
-	var nextState = _p12._0;
-	var socket = _p12._1;
-	var cmd = _p12._2;
-	var _p13 = A2(_elm_lang$core$Debug$log, 'Init Command', cmd);
+	var _p13 = _user$project$Hello$progressState(model);
+	var nextState = _p13._0;
+	var socket = _p13._1;
+	var cmd = _p13._2;
+	var _p14 = A2(_elm_lang$core$Debug$log, 'Init Command', cmd);
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
@@ -19927,7 +20152,7 @@ var _user$project$Hello$init = function (location) {
 						_0: A2(
 							_elm_lang$core$Task$attempt,
 							_user$project$Hello$TextureLoaded,
-							_elm_community$webgl$WebGL_Texture$load('/images/0.png')),
+							_elm_community$webgl$WebGL_Texture$load('/images/all_.png')),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -19936,9 +20161,9 @@ var _user$project$Hello$init = function (location) {
 };
 var _user$project$Hello$update = F2(
 	function (msg, model) {
-		var _p14 = A2(_elm_lang$core$Debug$log, 'Update', msg);
-		var _p15 = msg;
-		switch (_p15.ctor) {
+		var _p15 = A2(_elm_lang$core$Debug$log, 'Update', msg);
+		var _p16 = msg;
+		switch (_p16.ctor) {
 			case 'UrlChange':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -19959,14 +20184,14 @@ var _user$project$Hello$update = F2(
 						model,
 						{
 							message: 'Joined Channel',
-							channel: _elm_lang$core$Maybe$Just(_p15._0)
+							channel: _elm_lang$core$Maybe$Just(_p16._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'PhoenixMsg':
-				var _p16 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p15._0, model.phxSocket);
-				var phxSocket = _p16._0;
-				var phxCmd = _p16._1;
+				var _p17 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p16._0, model.phxSocket);
+				var phxSocket = _p17._0;
+				var phxCmd = _p17._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -19975,10 +20200,10 @@ var _user$project$Hello$update = F2(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd)
 				};
 			case 'JoinRoom':
-				var _p17 = _user$project$Hello$progressState(model);
-				var nextState = _p17._0;
-				var socket = _p17._1;
-				var cmd = _p17._2;
+				var _p18 = _user$project$Hello$progressState(model);
+				var nextState = _p18._0;
+				var socket = _p18._1;
+				var cmd = _p18._2;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -20003,11 +20228,11 @@ var _user$project$Hello$update = F2(
 					model,
 					{
 						roomID: _elm_lang$core$Maybe$Just(
-							_elm_lang$core$Basics$toString(_p15._0))
+							_elm_lang$core$Basics$toString(_p16._0))
 					});
-				var _p18 = A2(_user$project$Hello$update, _user$project$Hello$JoinRoom, newModel);
-				var joinedModel = _p18._0;
-				var cmd = _p18._1;
+				var _p19 = A2(_user$project$Hello$update, _user$project$Hello$JoinRoom, newModel);
+				var joinedModel = _p19._0;
+				var cmd = _p19._1;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					joinedModel,
@@ -20017,8 +20242,8 @@ var _user$project$Hello$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'RoomIDChanged':
-				var _p19 = _p15._0;
-				var roomID = _elm_lang$core$Native_Utils.eq(_p19, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p19);
+				var _p20 = _p16._0;
+				var roomID = _elm_lang$core$Native_Utils.eq(_p20, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p20);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -20032,14 +20257,14 @@ var _user$project$Hello$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							name: _elm_lang$core$Maybe$Just(_p15._0)
+							name: _elm_lang$core$Maybe$Just(_p16._0)
 						}),
 					{ctor: '[]'});
 			case 'Play':
 				var newmodel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						played: _elm_lang$core$Maybe$Just(_p15._0)
+						played: _elm_lang$core$Maybe$Just(_p16._0)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -20047,24 +20272,24 @@ var _user$project$Hello$update = F2(
 					_1: _user$project$Hello$play(newmodel)
 				};
 			case 'VoteFromServer':
-				var _p23 = _p15._0;
+				var _p24 = _p16._0;
 				var votes = function () {
-					var _p20 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p23);
-					if (_p20.ctor === 'Ok') {
-						var _p21 = _p20._0;
+					var _p21 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p24);
+					if (_p21.ctor === 'Ok') {
+						var _p22 = _p21._0;
 						return {
 							ctor: '::',
-							_0: _p21,
+							_0: _p22,
 							_1: A2(
 								_elm_lang$core$List$filter,
-								_user$project$Hello$notUser(_p21.user),
+								_user$project$Hello$notUser(_p22.user),
 								model.votes)
 						};
 					} else {
 						return model.votes;
 					}
 				}();
-				var _p22 = A2(_elm_lang$core$Debug$log, 'Vote', _p23);
+				var _p23 = A2(_elm_lang$core$Debug$log, 'Vote', _p24);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -20072,10 +20297,10 @@ var _user$project$Hello$update = F2(
 						{votes: votes}),
 					{ctor: '[]'});
 			case 'SetName':
-				var _p24 = _user$project$Hello$progressState(model);
-				var nextState = _p24._0;
-				var socket = _p24._1;
-				var cmd = _p24._2;
+				var _p25 = _user$project$Hello$progressState(model);
+				var nextState = _p25._0;
+				var socket = _p25._1;
+				var cmd = _p25._2;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -20087,7 +20312,7 @@ var _user$project$Hello$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'ListUpdate':
-				var _p25 = A2(_elm_lang$core$Debug$log, 'List', 'Update');
+				var _p26 = A2(_elm_lang$core$Debug$log, 'List', 'Update');
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
@@ -20097,7 +20322,7 @@ var _user$project$Hello$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{size: _p15._0}),
+						{size: _p16._0}),
 					{ctor: '[]'});
 			default:
 				return {
@@ -20105,7 +20330,7 @@ var _user$project$Hello$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							texture: _elm_lang$core$Result$toMaybe(_p15._0)
+							texture: _elm_lang$core$Result$toMaybe(_p16._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};

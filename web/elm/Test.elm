@@ -125,7 +125,7 @@ init location =
         , Cmd.batch
             [ cmd
             , Task.perform (\x -> WindowSize x) Window.size
-            , Task.attempt TextureLoaded (Texture.load "/images/0.png")
+            , Task.attempt TextureLoaded (Texture.load "/images/all_.png")
             ]
         )
 
@@ -373,7 +373,15 @@ view model =
 
                 Just texture ->
                     WebGL.toHtml [ width model.size.width, height model.size.height ]
-                        [ (card (vec2 0.1 -0.6) texture) ]
+                        [ card (vec2 -0.95 -0.9) texture c0
+                        , card (vec2 -0.68 -0.9) texture c1
+                        , card (vec2 -0.41 -0.9) texture c2
+                        , card (vec2 -0.14 -0.9) texture c3
+                        , card (vec2 0.13 -0.9) texture c5
+                        , card (vec2 0.4 -0.9) texture c8
+                        , card (vec2 0.67 -0.9) texture c13
+                        , bg
+                        ]
 
 
 
