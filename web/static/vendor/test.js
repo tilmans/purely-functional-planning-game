@@ -15966,23 +15966,35 @@ var _user$project$Hello$view = function (model) {
 						{
 							ctor: '::',
 							_0: A2(
-								_user$project$AFrame_Primitives$sphere,
+								_user$project$AFrame_Primitives$box,
 								{
 									ctor: '::',
-									_0: A3(_user$project$AFrame_Primitives_Attributes$position, 0, 1.25, -1),
+									_0: A3(_user$project$AFrame_Primitives_Attributes$position, -1, 0.5, -3),
 									_1: {
 										ctor: '::',
-										_0: _user$project$AFrame_Primitives_Attributes$radius(1.25),
+										_0: A3(_user$project$AFrame_Primitives_Attributes$rotation, 0, 45, 0),
 										_1: {
 											ctor: '::',
 											_0: _user$project$AFrame_Primitives_Attributes$color(
-												A3(_elm_lang$core$Color$rgb, 0, 1, 0)),
+												A3(_elm_lang$core$Color$rgb, 255, 0, 0)),
 											_1: {ctor: '[]'}
 										}
 									}
 								},
 								{ctor: '[]'}),
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_user$project$AFrame_Primitives$sky,
+									{
+										ctor: '::',
+										_0: _user$project$AFrame_Primitives_Attributes$color(
+											A3(_elm_lang$core$Color$rgb, 0, 255, 0)),
+										_1: {ctor: '[]'}
+									},
+									{ctor: '[]'}),
+								_1: {ctor: '[]'}
+							}
 						}),
 					_1: {ctor: '[]'}
 				});

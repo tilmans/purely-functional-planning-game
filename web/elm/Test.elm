@@ -16,7 +16,7 @@ import Maybe exposing (withDefault)
 import Color exposing (rgb)
 import AFrame exposing (scene, entity)
 import AFrame.Primitives exposing (sphere, box, cylinder, plane, sky)
-import AFrame.Primitives.Attributes exposing (position, radius, color)
+import AFrame.Primitives.Attributes exposing (rotation, position, radius, color)
 
 
 {--TODO
@@ -347,11 +347,14 @@ view model =
             div [ class "aframe-container" ]
                 [ scene
                     []
-                    [ sphere
-                        [ position 0 1.25 -1
-                        , radius 1.25
-                        , color (rgb 0 1 0)
+                    [ box
+                        [ position -1 0.5 -3
+                        , rotation 0 45 0
+                        , color (rgb 255 0 0)
                         ]
+                        []
+                    , sky
+                        [ color (rgb 0 255 0) ]
                         []
                     ]
                 ]
