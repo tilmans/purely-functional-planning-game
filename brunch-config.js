@@ -43,7 +43,8 @@ exports.config = {
     watched: [
       "web/static",
       "test/static",
-      "web/elm/Test.elm"
+      "web/elm/Login.elm",
+      "web/elm/Play.elm"
     ],
 
     // Where to compile files to
@@ -58,7 +59,7 @@ exports.config = {
     },
     elmBrunch: {
         elmFolder: "web/elm",
-        mainModules: ["Test.elm"],
+        mainModules: ["Login.elm","Play.elm"],
         outputFolder: "../static/vendor",
         makeParameters: ["--debug"]
     },

@@ -19,5 +19,13 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
-const elmDiv = document.getElementById('elm-main')
-    , elmApp = Elm.Hello.embed(elmDiv)
+const loginDiv = document.getElementById('elm-login');
+if (loginDiv) {
+    const elmApp = Elm.Login.embed(loginDiv)
+}
+
+const playDiv = document.getElementById('elm-play');
+if (playDiv) {
+    const elmApp = Elm.Play.embed(playDiv)
+}
+

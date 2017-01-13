@@ -1,4 +1,4 @@
-module Hello exposing (..)
+module Play exposing (..)
 
 import Html exposing (..)
 import Html.Attributes as HA exposing (..)
