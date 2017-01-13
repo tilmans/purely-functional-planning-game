@@ -1,3 +1,3 @@
 [submodule "web/elm/elm-aframe"]
 	path = web/elm/elm-aframe
-	url = https://github.com/halfzebra/elm-aframe.git
+	url = https://github.com/tilmans/elm-aframe.git
