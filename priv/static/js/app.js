@@ -1565,8 +1565,8 @@ channel.join().receive("ok", function (resp) {
 exports.default = socket;
 });
 
-;require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");
-require.alias("phoenix/priv/static/phoenix.js", "phoenix");require.register("___globals___", function(exports, require, module) {
+;require.alias("phoenix/priv/static/phoenix.js", "phoenix");
+require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");require.register("___globals___", function(exports, require, module) {
   
 });})();require('___globals___');
 
@@ -16915,6 +16915,18 @@ var _user$project$AFrame_Primitives$cylinder = _elm_lang$html$Html$node('a-cylin
 var _user$project$AFrame_Primitives$cone = _elm_lang$html$Html$node('a-cone');
 var _user$project$AFrame_Primitives$box = _elm_lang$html$Html$node('a-box');
 
+var _user$project$AFrame_Primitives_Attributes$vrmodeui = function (enabled) {
+	var value = function () {
+		var _p0 = enabled;
+		if (_p0 === true) {
+			return 'true';
+		} else {
+			return 'false';
+		}
+	}();
+	var attribstring = A2(_elm_lang$core$Basics_ops['++'], 'enabled: ', value);
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'vm-mode-ui', attribstring);
+};
 var _user$project$AFrame_Primitives_Attributes$type_ = function (value) {
 	return A2(
 		_elm_lang$html$Html_Attributes$attribute,
@@ -17404,7 +17416,11 @@ var _user$project$Hello$cardImage = F3(
 var _user$project$Hello$aframeScene = function (model) {
 	return A2(
 		_user$project$AFrame$scene,
-		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _user$project$AFrame_Primitives_Attributes$vrmodeui(true),
+			_1: {ctor: '[]'}
+		},
 		A2(
 			_elm_lang$core$Basics_ops['++'],
 			{

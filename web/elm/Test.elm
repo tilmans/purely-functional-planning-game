@@ -376,7 +376,7 @@ cardAssets number =
 aframeScene : Model -> Html Msg
 aframeScene model =
     scene
-        []
+        [ AA.vrmodeui True ]
         ([ sky
             [ color (rgb 0 255 0) ]
             []
