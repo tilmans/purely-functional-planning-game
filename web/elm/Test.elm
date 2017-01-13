@@ -1,7 +1,7 @@
 module Hello exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes as HA exposing (..)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Phoenix.Socket exposing (Socket)
 import Phoenix.Channel
@@ -15,8 +15,10 @@ import Dict exposing (Dict)
 import Maybe exposing (withDefault)
 import Color exposing (rgb)
 import AFrame exposing (scene, entity)
-import AFrame.Primitives exposing (sphere, box, cylinder, plane, sky)
-import AFrame.Primitives.Attributes exposing (rotation, position, radius, color)
+import AFrame.Primitives as AP exposing (..)
+import AFrame.Primitives.Attributes as AA exposing (..)
+import AFrame.Primitives.Camera exposing (..)
+import AFrame.Primitives.Cursor exposing (..)
 
 
 {--TODO
@@ -48,7 +50,7 @@ socketServer location =
 
 
 cards =
-    [ 0, 1, 3, 5, 8, 13 ]
+    [ 0, 1, 2, 3, 5, 8, 13 ]
 
 
 type Msg
@@ -65,6 +67,7 @@ type Msg
     | UrlChange Location
     | SetName
     | ListUpdate JE.Value
+    | CardSelected Int
 
 
 type State
@@ -204,11 +207,10 @@ update msg model =
                     { model | state = nextState, phxSocket = socket } ! [ cmd ]
 
             ListUpdate msg ->
-                let
-                    _ =
-                        Debug.log "List" "Update"
-                in
-                    model ! []
+                model ! []
+
+            CardSelected card ->
+                { model | played = Just card } ! []
 
 
 progressState : Model -> ( State, Phoenix.Socket.Socket Msg, Cmd Msg )
@@ -267,7 +269,7 @@ startform : Model -> Html Msg
 startform model =
     div []
         [ div []
-            [ input [ type_ "text", onInput RoomIDChanged ] []
+            [ input [ HA.type_ "text", onInput RoomIDChanged ] []
             , button [ onClick JoinRoom ] [ text "Join Game" ]
             ]
         , div []
@@ -329,9 +331,60 @@ vote vote =
 nameform : Model -> Html Msg
 nameform model =
     Html.form [ onSubmit SetName ]
-        [ input [ type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
+        [ input [ HA.type_ "text", onInput NameChange, value (withDefault "" model.name) ] []
         , button [ onClick SetName ] [ text "Join Game" ]
         ]
+
+
+cardImage : Maybe Int -> Int -> Int -> Html Msg
+cardImage selection index number =
+    let
+        xpos =
+            toFloat (index - 3)
+
+        ypos =
+            case selection of
+                Nothing ->
+                    1
+
+                Just sel ->
+                    if number == sel then
+                        1.5
+                    else
+                        1
+
+        cardpos =
+            position xpos ypos -5
+    in
+        image
+            [ AA.src ("#c" ++ (toString number))
+            , cardpos
+            , onClick (CardSelected number)
+            ]
+            []
+
+
+cardAssets : Int -> Html msg
+cardAssets number =
+    let
+        nS =
+            toString number
+    in
+        img [ id ("c" ++ nS), HA.src ("/images/" ++ nS ++ ".png") ] []
+
+
+aframeScene : Model -> Html Msg
+aframeScene model =
+    scene
+        []
+        ([ sky
+            [ color (rgb 0 255 0) ]
+            []
+         , camera [ position 0 0 0 ] [ cursor [ fuse True ] [] ]
+         ]
+            ++ (List.map cardAssets cards)
+            ++ (List.indexedMap (cardImage model.played) cards)
+        )
 
 
 view : Model -> Html Msg
@@ -344,24 +397,10 @@ view model =
             startform model
 
         Playing ->
-            div [ class "aframe-container" ]
-                [ scene
-                    []
-                    [ box
-                        [ position -1 0.5 -3
-                        , rotation 0 45 0
-                        , color (rgb 255 0 0)
-                        ]
-                        []
-                    , sky
-                        [ color (rgb 0 255 0) ]
-                        []
-                    ]
-                ]
+            aframeScene model
 
 
 
-{--gameform model--}
 {--Utilities --}
 
 

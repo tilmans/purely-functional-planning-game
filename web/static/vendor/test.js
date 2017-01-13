@@ -15331,6 +15331,8 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 var _user$project$AFrame$entity = _elm_lang$html$Html$node('a-entity');
 var _user$project$AFrame$scene = _elm_lang$html$Html$node('a-scene');
 
+var _user$project$AFrame_Primitives$image = _elm_lang$html$Html$node('a-image');
+var _user$project$AFrame_Primitives$assets = _elm_lang$html$Html$node('a-assets');
 var _user$project$AFrame_Primitives$torus = _elm_lang$html$Html$node('a-torus');
 var _user$project$AFrame_Primitives$ring = _elm_lang$html$Html$node('a-ring');
 var _user$project$AFrame_Primitives$sphere = _elm_lang$html$Html$node('a-sphere');
@@ -15549,7 +15551,7 @@ var _user$project$AFrame_Primitives_Attributes$opacity = function (value) {
 		_elm_lang$core$Basics$toString(value));
 };
 var _user$project$AFrame_Primitives_Attributes$src = function (value) {
-	return A2(_elm_lang$html$Html_Attributes$attribute, 'shader', value);
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'src', value);
 };
 var _user$project$AFrame_Primitives_Attributes$shader = function (value) {
 	return A2(_elm_lang$html$Html_Attributes$attribute, 'shader', value);
@@ -15566,6 +15568,61 @@ var _user$project$AFrame_Primitives_Attributes$color = function (value) {
 		'color',
 		_eskimoblood$elm_color_extra$Color_Convert$colorToHex(value));
 };
+
+var _user$project$AFrame_Primitives_Camera$wasdControlsEnabled = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'wasd-controls-enabled',
+		_elm_lang$core$String$toLower(
+			_elm_lang$core$Basics$toString(value)));
+};
+var _user$project$AFrame_Primitives_Camera$near = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'near',
+		_elm_lang$core$Basics$toString(value));
+};
+var _user$project$AFrame_Primitives_Camera$lookControlsEnabled = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'look-controls-enabled',
+		_elm_lang$core$String$toLower(
+			_elm_lang$core$Basics$toString(value)));
+};
+var _user$project$AFrame_Primitives_Camera$fov = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'fov',
+		_elm_lang$core$Basics$toString(value));
+};
+var _user$project$AFrame_Primitives_Camera$far = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'far',
+		_elm_lang$core$Basics$toString(value));
+};
+var _user$project$AFrame_Primitives_Camera$camera = _elm_lang$html$Html$node('a-camera');
+
+var _user$project$AFrame_Primitives_Cursor$timeout = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'timeout',
+		_elm_lang$core$Basics$toString(value));
+};
+var _user$project$AFrame_Primitives_Cursor$maxDistance = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'max-distance',
+		_elm_lang$core$Basics$toString(value));
+};
+var _user$project$AFrame_Primitives_Cursor$fuse = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'fuse',
+		_elm_lang$core$String$toLower(
+			_elm_lang$core$Basics$toString(value)));
+};
+var _user$project$AFrame_Primitives_Cursor$cursor = _elm_lang$html$Html$node('a-cursor');
 
 var _user$project$Hello$extract = F3(
 	function (lookFor, values, accum) {
@@ -15609,6 +15666,26 @@ var _user$project$Hello$userParams = _elm_lang$core$Json_Encode$object(
 		},
 		_1: {ctor: '[]'}
 	});
+var _user$project$Hello$cardAssets = function (number) {
+	var nS = _elm_lang$core$Basics$toString(number);
+	return A2(
+		_elm_lang$html$Html$img,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id(
+				A2(_elm_lang$core$Basics_ops['++'], 'c', nS)),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$src(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'/images/',
+						A2(_elm_lang$core$Basics_ops['++'], nS, '.png'))),
+				_1: {ctor: '[]'}
+			}
+		},
+		{ctor: '[]'});
+};
 var _user$project$Hello$vote = function (vote) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -15664,17 +15741,21 @@ var _user$project$Hello$cards = {
 		_0: 1,
 		_1: {
 			ctor: '::',
-			_0: 3,
+			_0: 2,
 			_1: {
 				ctor: '::',
-				_0: 5,
+				_0: 3,
 				_1: {
 					ctor: '::',
-					_0: 8,
+					_0: 5,
 					_1: {
 						ctor: '::',
-						_0: 13,
-						_1: {ctor: '[]'}
+						_0: 8,
+						_1: {
+							ctor: '::',
+							_0: 13,
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -15711,6 +15792,92 @@ var _user$project$Hello$Model = F8(
 	function (a, b, c, d, e, f, g, h) {
 		return {phxSocket: a, message: b, channel: c, roomID: d, played: e, name: f, votes: g, state: h};
 	});
+var _user$project$Hello$CardSelected = function (a) {
+	return {ctor: 'CardSelected', _0: a};
+};
+var _user$project$Hello$cardImage = F3(
+	function (selection, index, number) {
+		var ypos = function () {
+			var _p1 = selection;
+			if (_p1.ctor === 'Nothing') {
+				return 1;
+			} else {
+				return _elm_lang$core$Native_Utils.eq(number, _p1._0) ? 1.5 : 1;
+			}
+		}();
+		var xpos = _elm_lang$core$Basics$toFloat(index - 3);
+		var cardpos = A3(_user$project$AFrame_Primitives_Attributes$position, xpos, ypos, -5);
+		return A2(
+			_user$project$AFrame_Primitives$image,
+			{
+				ctor: '::',
+				_0: _user$project$AFrame_Primitives_Attributes$src(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'#c',
+						_elm_lang$core$Basics$toString(number))),
+				_1: {
+					ctor: '::',
+					_0: cardpos,
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(
+							_user$project$Hello$CardSelected(number)),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{ctor: '[]'});
+	});
+var _user$project$Hello$aframeScene = function (model) {
+	return A2(
+		_user$project$AFrame$scene,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			{
+				ctor: '::',
+				_0: A2(
+					_user$project$AFrame_Primitives$sky,
+					{
+						ctor: '::',
+						_0: _user$project$AFrame_Primitives_Attributes$color(
+							A3(_elm_lang$core$Color$rgb, 0, 255, 0)),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_user$project$AFrame_Primitives_Camera$camera,
+						{
+							ctor: '::',
+							_0: A3(_user$project$AFrame_Primitives_Attributes$position, 0, 0, 0),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_user$project$AFrame_Primitives_Cursor$cursor,
+								{
+									ctor: '::',
+									_0: _user$project$AFrame_Primitives_Cursor$fuse(true),
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			},
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_elm_lang$core$List$map, _user$project$Hello$cardAssets, _user$project$Hello$cards),
+				A2(
+					_elm_lang$core$List$indexedMap,
+					_user$project$Hello$cardImage(model.played),
+					_user$project$Hello$cards))));
+};
 var _user$project$Hello$ListUpdate = function (a) {
 	return {ctor: 'ListUpdate', _0: a};
 };
@@ -15799,11 +15966,11 @@ var _user$project$Hello$availableCards = A2(
 	A2(_elm_lang$core$List$map, _user$project$Hello$card, _user$project$Hello$cards));
 var _user$project$Hello$gameform = function (model) {
 	var gameurl = function () {
-		var _p1 = model.roomID;
-		if (_p1.ctor === 'Nothing') {
+		var _p2 = model.roomID;
+		if (_p2.ctor === 'Nothing') {
 			return '/hello?';
 		} else {
-			return A2(_elm_lang$core$Basics_ops['++'], '/hello?', _p1._0);
+			return A2(_elm_lang$core$Basics_ops['++'], '/hello?', _p2._0);
 		}
 	}();
 	return A2(
@@ -15944,60 +16111,14 @@ var _user$project$Hello$startform = function (model) {
 		});
 };
 var _user$project$Hello$view = function (model) {
-	var _p2 = model.state;
-	switch (_p2.ctor) {
+	var _p3 = model.state;
+	switch (_p3.ctor) {
 		case 'NameInput':
 			return _user$project$Hello$nameform(model);
 		case 'RoomInput':
 			return _user$project$Hello$startform(model);
 		default:
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('aframe-container'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_user$project$AFrame$scene,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: A2(
-								_user$project$AFrame_Primitives$box,
-								{
-									ctor: '::',
-									_0: A3(_user$project$AFrame_Primitives_Attributes$position, -1, 0.5, -3),
-									_1: {
-										ctor: '::',
-										_0: A3(_user$project$AFrame_Primitives_Attributes$rotation, 0, 45, 0),
-										_1: {
-											ctor: '::',
-											_0: _user$project$AFrame_Primitives_Attributes$color(
-												A3(_elm_lang$core$Color$rgb, 255, 0, 0)),
-											_1: {ctor: '[]'}
-										}
-									}
-								},
-								{ctor: '[]'}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_user$project$AFrame_Primitives$sky,
-									{
-										ctor: '::',
-										_0: _user$project$AFrame_Primitives_Attributes$color(
-											A3(_elm_lang$core$Color$rgb, 0, 255, 0)),
-										_1: {ctor: '[]'}
-									},
-									{ctor: '[]'}),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
-				});
+			return _user$project$Hello$aframeScene(model);
 	}
 };
 var _user$project$Hello$VoteFromServer = function (a) {
@@ -16019,12 +16140,12 @@ var _user$project$Hello$play = function (model) {
 	if (_elm_lang$core$Native_Utils.eq(model.name, _elm_lang$core$Maybe$Nothing)) {
 		return _elm_lang$core$Platform_Cmd$none;
 	} else {
-		var _p3 = model.channel;
-		if (_p3.ctor === 'Nothing') {
+		var _p4 = model.channel;
+		if (_p4.ctor === 'Nothing') {
 			return _elm_lang$core$Platform_Cmd$none;
 		} else {
-			var _p4 = model.played;
-			if (_p4.ctor === 'Nothing') {
+			var _p5 = model.played;
+			if (_p5.ctor === 'Nothing') {
 				return _elm_lang$core$Platform_Cmd$none;
 			} else {
 				var payload = _elm_lang$core$Json_Encode$object(
@@ -16041,7 +16162,7 @@ var _user$project$Hello$play = function (model) {
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'number',
-								_1: _elm_lang$core$Json_Encode$int(_p4._0)
+								_1: _elm_lang$core$Json_Encode$int(_p5._0)
 							},
 							_1: {ctor: '[]'}
 						}
@@ -16049,10 +16170,10 @@ var _user$project$Hello$play = function (model) {
 				var push = A2(
 					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p3._0));
-				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
-				var phxSocket = _p5._0;
-				var phxCmd = _p5._1;
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play.card', _p4._0));
+				var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push, model.phxSocket);
+				var phxSocket = _p6._0;
+				var phxCmd = _p6._1;
 				return A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd);
 			}
 		}
@@ -16075,9 +16196,9 @@ var _user$project$Hello$connectSocket = function (model) {
 				_fbonetti$elm_phoenix_socket$Phoenix_Channel$withPayload,
 				_user$project$Hello$userParams,
 				_fbonetti$elm_phoenix_socket$Phoenix_Channel$init(channelID))));
-	var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
-	var phxSocket = _p6._0;
-	var phxCmd = _p6._1;
+	var _p7 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
+	var phxSocket = _p7._0;
+	var phxCmd = _p7._1;
 	var phxSocketListen = A4(_fbonetti$elm_phoenix_socket$Phoenix_Socket$on, 'play.card', channelID, _user$project$Hello$VoteFromServer, phxSocket);
 	return {
 		ctor: '_Tuple2',
@@ -16089,8 +16210,8 @@ var _user$project$Hello$Playing = {ctor: 'Playing'};
 var _user$project$Hello$RoomInput = {ctor: 'RoomInput'};
 var _user$project$Hello$NameInput = {ctor: 'NameInput'};
 var _user$project$Hello$progressState = function (model) {
-	var _p7 = model.state;
-	switch (_p7.ctor) {
+	var _p8 = model.state;
+	switch (_p8.ctor) {
 		case 'NameInput':
 			if (_elm_lang$core$Native_Utils.eq(model.name, _elm_lang$core$Maybe$Nothing)) {
 				return {ctor: '_Tuple3', _0: _user$project$Hello$NameInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
@@ -16098,9 +16219,9 @@ var _user$project$Hello$progressState = function (model) {
 				if (_elm_lang$core$Native_Utils.eq(model.roomID, _elm_lang$core$Maybe$Nothing)) {
 					return {ctor: '_Tuple3', _0: _user$project$Hello$RoomInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var _p8 = _user$project$Hello$connectSocket(model);
-					var socket = _p8._0;
-					var cmd = _p8._1;
+					var _p9 = _user$project$Hello$connectSocket(model);
+					var socket = _p9._0;
+					var cmd = _p9._1;
 					return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 				}
 			}
@@ -16108,15 +16229,15 @@ var _user$project$Hello$progressState = function (model) {
 			if (_elm_lang$core$Native_Utils.eq(model.roomID, _elm_lang$core$Maybe$Nothing)) {
 				return {ctor: '_Tuple3', _0: _user$project$Hello$RoomInput, _1: model.phxSocket, _2: _elm_lang$core$Platform_Cmd$none};
 			} else {
-				var _p9 = _user$project$Hello$connectSocket(model);
-				var socket = _p9._0;
-				var cmd = _p9._1;
+				var _p10 = _user$project$Hello$connectSocket(model);
+				var socket = _p10._0;
+				var cmd = _p10._1;
 				return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 			}
 		default:
-			var _p10 = _user$project$Hello$connectSocket(model);
-			var socket = _p10._0;
-			var cmd = _p10._1;
+			var _p11 = _user$project$Hello$connectSocket(model);
+			var socket = _p11._0;
+			var cmd = _p11._1;
 			return {ctor: '_Tuple3', _0: _user$project$Hello$Playing, _1: socket, _2: cmd};
 	}
 };
@@ -16129,9 +16250,9 @@ var _user$project$Hello$init = function (location) {
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(
 				_user$project$Hello$socketServer(location))));
-	var _p11 = _user$project$Hello$getIdFrom(location.search);
-	var name = _p11._0;
-	var id = _p11._1;
+	var _p12 = _user$project$Hello$getIdFrom(location.search);
+	var name = _p12._0;
+	var id = _p12._1;
 	var model = {
 		phxSocket: initsocket,
 		message: '',
@@ -16142,10 +16263,10 @@ var _user$project$Hello$init = function (location) {
 		votes: {ctor: '[]'},
 		state: _user$project$Hello$NameInput
 	};
-	var _p12 = _user$project$Hello$progressState(model);
-	var nextState = _p12._0;
-	var socket = _p12._1;
-	var cmd = _p12._2;
+	var _p13 = _user$project$Hello$progressState(model);
+	var nextState = _p13._0;
+	var socket = _p13._1;
+	var cmd = _p13._2;
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
@@ -16156,9 +16277,9 @@ var _user$project$Hello$init = function (location) {
 };
 var _user$project$Hello$update = F2(
 	function (msg, model) {
-		var _p13 = A2(_elm_lang$core$Debug$log, 'Update', msg);
-		var _p14 = msg;
-		switch (_p14.ctor) {
+		var _p14 = A2(_elm_lang$core$Debug$log, 'Update', msg);
+		var _p15 = msg;
+		switch (_p15.ctor) {
 			case 'UrlChange':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -16179,14 +16300,14 @@ var _user$project$Hello$update = F2(
 						model,
 						{
 							message: 'Joined Channel',
-							channel: _elm_lang$core$Maybe$Just(_p14._0)
+							channel: _elm_lang$core$Maybe$Just(_p15._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'PhoenixMsg':
-				var _p15 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p14._0, model.phxSocket);
-				var phxSocket = _p15._0;
-				var phxCmd = _p15._1;
+				var _p16 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p15._0, model.phxSocket);
+				var phxSocket = _p16._0;
+				var phxCmd = _p16._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -16195,10 +16316,10 @@ var _user$project$Hello$update = F2(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Hello$PhoenixMsg, phxCmd)
 				};
 			case 'JoinRoom':
-				var _p16 = _user$project$Hello$progressState(model);
-				var nextState = _p16._0;
-				var socket = _p16._1;
-				var cmd = _p16._2;
+				var _p17 = _user$project$Hello$progressState(model);
+				var nextState = _p17._0;
+				var socket = _p17._1;
+				var cmd = _p17._2;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -16223,11 +16344,11 @@ var _user$project$Hello$update = F2(
 					model,
 					{
 						roomID: _elm_lang$core$Maybe$Just(
-							_elm_lang$core$Basics$toString(_p14._0))
+							_elm_lang$core$Basics$toString(_p15._0))
 					});
-				var _p17 = A2(_user$project$Hello$update, _user$project$Hello$JoinRoom, newModel);
-				var joinedModel = _p17._0;
-				var cmd = _p17._1;
+				var _p18 = A2(_user$project$Hello$update, _user$project$Hello$JoinRoom, newModel);
+				var joinedModel = _p18._0;
+				var cmd = _p18._1;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					joinedModel,
@@ -16237,8 +16358,8 @@ var _user$project$Hello$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'RoomIDChanged':
-				var _p18 = _p14._0;
-				var roomID = _elm_lang$core$Native_Utils.eq(_p18, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p18);
+				var _p19 = _p15._0;
+				var roomID = _elm_lang$core$Native_Utils.eq(_p19, '') ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p19);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -16252,14 +16373,14 @@ var _user$project$Hello$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							name: _elm_lang$core$Maybe$Just(_p14._0)
+							name: _elm_lang$core$Maybe$Just(_p15._0)
 						}),
 					{ctor: '[]'});
 			case 'Play':
 				var newmodel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						played: _elm_lang$core$Maybe$Just(_p14._0)
+						played: _elm_lang$core$Maybe$Just(_p15._0)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -16267,24 +16388,24 @@ var _user$project$Hello$update = F2(
 					_1: _user$project$Hello$play(newmodel)
 				};
 			case 'VoteFromServer':
-				var _p22 = _p14._0;
+				var _p23 = _p15._0;
 				var votes = function () {
-					var _p19 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p22);
-					if (_p19.ctor === 'Ok') {
-						var _p20 = _p19._0;
+					var _p20 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Hello$decodeVote, _p23);
+					if (_p20.ctor === 'Ok') {
+						var _p21 = _p20._0;
 						return {
 							ctor: '::',
-							_0: _p20,
+							_0: _p21,
 							_1: A2(
 								_elm_lang$core$List$filter,
-								_user$project$Hello$notUser(_p20.user),
+								_user$project$Hello$notUser(_p21.user),
 								model.votes)
 						};
 					} else {
 						return model.votes;
 					}
 				}();
-				var _p21 = A2(_elm_lang$core$Debug$log, 'Vote', _p22);
+				var _p22 = A2(_elm_lang$core$Debug$log, 'Vote', _p23);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -16292,10 +16413,10 @@ var _user$project$Hello$update = F2(
 						{votes: votes}),
 					{ctor: '[]'});
 			case 'SetName':
-				var _p23 = _user$project$Hello$progressState(model);
-				var nextState = _p23._0;
-				var socket = _p23._1;
-				var cmd = _p23._2;
+				var _p24 = _user$project$Hello$progressState(model);
+				var nextState = _p24._0;
+				var socket = _p24._1;
+				var cmd = _p24._2;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -16306,11 +16427,19 @@ var _user$project$Hello$update = F2(
 						_0: cmd,
 						_1: {ctor: '[]'}
 					});
-			default:
-				var _p24 = A2(_elm_lang$core$Debug$log, 'List', 'Update');
+			case 'ListUpdate':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
+					{ctor: '[]'});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							played: _elm_lang$core$Maybe$Just(_p15._0)
+						}),
 					{ctor: '[]'});
 		}
 	});
@@ -16322,7 +16451,7 @@ var _user$project$Hello$main = A2(
 var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};
 if (typeof _user$project$Hello$main !== 'undefined') {
-    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"JoinRoom":[],"ShowLeaveMessage":["String"],"NameChange":["String"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"SetName":[],"RoomIDChanged":["String"],"ListUpdate":["Json.Encode.Value"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Hello$main(Elm['Hello'], 'Hello', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Hello.Msg":{"args":[],"tags":{"Play":["Int"],"CardSelected":["Int"],"JoinRoom":[],"ShowLeaveMessage":["String"],"NameChange":["String"],"PhoenixMsg":["Phoenix.Socket.Msg Hello.Msg"],"ShowJoinMessage":["String"],"UrlChange":["Navigation.Location"],"SetName":[],"RoomIDChanged":["String"],"ListUpdate":["Json.Encode.Value"],"VoteFromServer":["Json.Encode.Value"],"NewRoom":["Int"],"CreateRoom":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Hello.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
