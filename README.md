@@ -1,4 +1,10 @@
-# Hello
+# A simple planning game
+
+A planning game for project planning sessions. Find the live version at https://secret-oasis-96580.herokuapp.com/hello
+
+This is mainly an experiment in using Elm and Elixir/Phoenix for a multi-user application. Don't expect anything functional.
+
+## Original Phoenix instructions
 
 To start your Phoenix app:
 
