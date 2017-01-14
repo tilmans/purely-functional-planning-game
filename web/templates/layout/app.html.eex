@@ -9,7 +9,8 @@
 
     <title>Hello Hello!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-    <script src="https://aframe.io/releases/0.4.0/aframe.min.js"></script>
+    <script src="<%= static_path(@conn, "/js/aframe.min.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/aframe-extras.min.js") %>"></script>
   </head>
 
   <body>

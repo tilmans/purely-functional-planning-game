@@ -19,6 +19,7 @@ import AFrame.Primitives as AP exposing (..)
 import AFrame.Primitives.Attributes as AA exposing (..)
 import AFrame.Primitives.Camera exposing (..)
 import AFrame.Primitives.Cursor exposing (..)
+import AFrame.Extra.ModelLoader exposing (..)
 
 
 {--TODO
@@ -373,6 +374,10 @@ cardAssets number =
         img [ id ("c" ++ nS), HA.src ("/images/" ++ nS ++ ".png") ] []
 
 
+scalefactor =
+    0.03
+
+
 aframeScene : Model -> Html Msg
 aframeScene model =
     scene
@@ -381,6 +386,12 @@ aframeScene model =
             [ color (rgb 0 255 0) ]
             []
          , camera [ position 0 0 0 ] [ cursor [ fuse True ] [] ]
+         , entity
+            [ plymodel "src: url(/models/try.ply)"
+            , position 0 1 -5
+            , scale scalefactor scalefactor scalefactor
+            ]
+            []
          ]
             ++ (List.map cardAssets cards)
             ++ (List.indexedMap (cardImage model.played) cards)

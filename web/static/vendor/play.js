@@ -15331,6 +15331,10 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 var _user$project$AFrame$entity = _elm_lang$html$Html$node('a-entity');
 var _user$project$AFrame$scene = _elm_lang$html$Html$node('a-scene');
 
+var _user$project$AFrame_Extra_ModelLoader$plymodel = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'ply-model', value);
+};
+
 var _user$project$AFrame_Primitives$image = _elm_lang$html$Html$node('a-image');
 var _user$project$AFrame_Primitives$assets = _elm_lang$html$Html$node('a-assets');
 var _user$project$AFrame_Primitives$torus = _elm_lang$html$Html$node('a-torus');
@@ -15678,6 +15682,7 @@ var _user$project$Play$userParams = _elm_lang$core$Json_Encode$object(
 		},
 		_1: {ctor: '[]'}
 	});
+var _user$project$Play$scalefactor = 3.0e-2;
 var _user$project$Play$cardAssets = function (number) {
 	var nS = _elm_lang$core$Basics$toString(number);
 	return A2(
@@ -15883,7 +15888,26 @@ var _user$project$Play$aframeScene = function (model) {
 								{ctor: '[]'}),
 							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_user$project$AFrame$entity,
+							{
+								ctor: '::',
+								_0: _user$project$AFrame_Extra_ModelLoader$plymodel('src: url(/models/try.ply)'),
+								_1: {
+									ctor: '::',
+									_0: A3(_user$project$AFrame_Primitives_Attributes$position, 0, 1, -5),
+									_1: {
+										ctor: '::',
+										_0: A3(_user$project$AFrame_Primitives_Attributes$scale, _user$project$Play$scalefactor, _user$project$Play$scalefactor, _user$project$Play$scalefactor),
+										_1: {ctor: '[]'}
+									}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
+					}
 				}
 			},
 			A2(
